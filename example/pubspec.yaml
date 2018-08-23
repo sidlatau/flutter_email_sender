@@ -1,0 +1,27 @@
+name: flutter_email_sender_example
+description: Demonstrates how to use the flutter_email_sender plugin.
+
+version: 1.0.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^0.1.2
+  image_picker: ^0.4.5
+  path_provider: ^0.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_email_sender:
+    path: ../
+
+
+flutter:
+  uses-material-design: true
+
+environment:
+  sdk: ">=2.0.0-dev.28.0 <3.0.0"
+  flutter: ">=0.1.4 <2.0.0"
