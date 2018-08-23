@@ -1,0 +1,23 @@
+name: flutter_email_sender
+description: Allows send emails from flutter usin native platform functionality.
+version: 0.0.1
+author: Tautvydas Šidlauskas <tautvydas.sidlauskas@gmail.com>
+homepage: https://github.com/sidlatau/flutter_email_launcher
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+# For information on the generic Dart part of this file, see the
+# following page: https://www.dartlang.org/tools/pub/pubspec
+
+# The following section is specific to Flutter.
+flutter:
+  plugin:
+    androidPackage: com.sidlatau.flutteremailsender
+    pluginClass: FlutterEmailSenderPlugin
+
+environment:
+  sdk: ">=2.0.0-dev.28.0 <3.0.0"
+  flutter: ">=0.1.4 <2.0.0"
+
