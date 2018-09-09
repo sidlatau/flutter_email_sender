@@ -34,9 +34,12 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar) : MethodCallHan
     }
 
     private fun sendEmail(options: MethodCall, callback: Result) {
-        val context = registrar.context()
+        val context = registrar.activity() ?: registrar.context()
+        val flags = if (registrar.activity() != null) 0 else Intent.FLAG_ACTIVITY_NEW_TASK
 
         val intent = Intent(Intent.ACTION_SEND)
+        intent.addFlags(flags)
+
         intent.type = "vnd.android.cursor.dir/email"
 
 
@@ -47,7 +50,7 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar) : MethodCallHan
 
         if (options.hasArgument(BODY)) {
             val body = options.argument<String>(BODY)
-            if(body != null) {
+            if (body != null) {
                 intent.putExtra(Intent.EXTRA_TEXT, body)
             }
         }
@@ -59,14 +62,14 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar) : MethodCallHan
 
         if (options.hasArgument(CC)) {
             val cc = options.argument<ArrayList<String>>(CC)
-            if(cc != null) {
+            if (cc != null) {
                 intent.putExtra(Intent.EXTRA_CC, listArrayToArray(cc))
             }
         }
 
         if (options.hasArgument(BCC)) {
             val bcc = options.argument<ArrayList<String>>(BCC)
-            if(bcc != null) {
+            if (bcc != null) {
                 intent.putExtra(Intent.EXTRA_BCC, listArrayToArray(bcc))
             }
         }
