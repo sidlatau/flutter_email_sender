@@ -1,11 +1,16 @@
-## 0.0.1
+## 0.0.4
 
-* Works on Android and iOS. On Android Intent is launched, on iOS MFMailComposeViewController is used to compose an email.
+* Fixed AndroidRuntimeException when calling startActivity (Issue #1)..
+
+## 0.0.3
+
+* Fixed grammar.
 
 ## 0.0.2
 
 * Fixed homepage link.
 
-## 0.0.3
+## 0.0.1
 
-* Fixed grammar.
+* Works on Android and iOS. On Android Intent is launched, on iOS MFMailComposeViewController is used to compose an email.
+
