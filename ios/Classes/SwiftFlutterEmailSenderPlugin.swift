@@ -41,6 +41,10 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             }
             mailComposerVC.setCcRecipients(email.cc)
             mailComposerVC.setCcRecipients(email.bcc)
+            
+            if let body = email.body {
+                mailComposerVC.setMessageBody(body, isHTML: false)
+            }
 
             if let attachmentPath = email.attachmentPath,
                 let fileData = try? Data(contentsOf: URL(fileURLWithPath: attachmentPath)) {
