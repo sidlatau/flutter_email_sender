@@ -1,6 +1,10 @@
+## 0.1.0
+
+* Fixed problem, that email body was not provided to mail app in iOS part.
+
 ## 0.0.4
 
-* Fixed AndroidRuntimeException when calling startActivity (Issue #1)..
+* Fixed AndroidRuntimeException when calling startActivity (Issue #1).
 
 ## 0.0.3
 
