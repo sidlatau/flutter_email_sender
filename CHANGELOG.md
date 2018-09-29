@@ -1,3 +1,7 @@
+## 1.0.0
+
+* Added custom file provider to work nicely with 'open_file' plugin (issue #3).
+
 ## 0.1.0
 
 * Fixed problem, that email body was not provided to mail app in iOS part.
