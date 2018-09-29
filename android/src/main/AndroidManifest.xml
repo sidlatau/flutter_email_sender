@@ -2,7 +2,7 @@
   package="com.sidlatau.flutteremailsender">
     <application>
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="com.sidlatau.flutteremailsender.FlutterEmailSenderFileProvider"
             android:authorities="${applicationId}.file_provider"
             android:exported="false"
             android:grantUriPermissions="true">
