@@ -57,7 +57,9 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar) : MethodCallHan
 
         if (options.hasArgument(RECIPIENTS)) {
             val recipients = options.argument<ArrayList<String>>(RECIPIENTS)
-            intent.putExtra(Intent.EXTRA_EMAIL, listArrayToArray(recipients))
+            if (recipients != null) {
+                intent.putExtra(Intent.EXTRA_EMAIL, listArrayToArray(recipients))
+            }
         }
 
         if (options.hasArgument(CC)) {
