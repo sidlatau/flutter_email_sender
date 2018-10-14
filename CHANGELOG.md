@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Fixed compilation problem in flutter > 0.10.0 version (issue #5).
+
 ## 1.0.0
 
 * Added custom file provider to work nicely with 'open_file' plugin (issue #3).
