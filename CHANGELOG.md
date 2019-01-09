@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Updated Swift version to 4.2.
+
 ## 1.0.1
 
 * Fixed compilation problem in flutter > 0.10.0 version (issue #5).
