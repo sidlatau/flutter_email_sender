@@ -1,3 +1,7 @@
+## 1.2.0
+
+* Updated gradle and Kotlin versions to work with Android Studio 3.3.
+
 ## 1.1.0
 
 * Updated Swift version to 4.2.
