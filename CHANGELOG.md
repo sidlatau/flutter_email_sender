@@ -1,3 +1,7 @@
+## 2.0.0
+
+* Migrated to AndroidX.
+
 ## 1.2.0
 
 * Updated gradle and Kotlin versions to work with Android Studio 3.3.
