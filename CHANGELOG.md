@@ -1,3 +1,7 @@
+## 2.0.1
+
+* Finish future when email screen is closed. (Issue #15)
+
 ## 2.0.0
 
 * Migrated to AndroidX.
