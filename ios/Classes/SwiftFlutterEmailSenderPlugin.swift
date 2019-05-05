@@ -55,7 +55,10 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
                 )
             }
 
-            viewController.present(mailComposerVC, animated: true, completion: nil)
+            viewController.present(mailComposerVC,
+                                   animated: true,
+                                   completion: { result(nil) }
+            )
         } else{
             result(FlutterError.init(code: "not_available",
                                      message: "No email clients found!",
