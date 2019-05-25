@@ -1,3 +1,7 @@
+## 2.0.3
+
+* Finished migration to Android X.
+
 ## 2.0.2
 
 * Configured external files path for FileProvider (Issue #10).
