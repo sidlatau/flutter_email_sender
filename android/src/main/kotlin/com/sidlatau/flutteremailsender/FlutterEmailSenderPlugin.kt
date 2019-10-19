@@ -1,6 +1,8 @@
 package com.sidlatau.flutteremailsender
 
 import android.content.Intent
+import android.os.Build
+import android.text.Html
 import androidx.core.content.FileProvider
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -16,6 +18,7 @@ private const val RECIPIENTS = "recipients"
 private const val CC = "cc"
 private const val BCC = "bcc"
 private const val ATTACHMENT_PATH = "attachment_path"
+private const val IS_HTML = "is_html"
 private const val REQUEST_CODE_SEND = 607
 
 class FlutterEmailSenderPlugin(private val registrar: Registrar)
@@ -60,8 +63,18 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
 
         if (options.hasArgument(BODY)) {
             val body = options.argument<String>(BODY)
+            var isHtml = false
+            if (options.hasArgument(IS_HTML)) {
+                isHtml = options.argument<Boolean>(IS_HTML)?:false
+            }
             if (body != null) {
-                intent.putExtra(Intent.EXTRA_TEXT, body)
+                if(isHtml!=null && isHtml){
+                    intent.setType("text/html")
+                    intent.putExtra(Intent.EXTRA_HTML_TEXT, body)
+                    intent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(body))
+                }else{
+                    intent.putExtra(Intent.EXTRA_TEXT, body)
+                }
             }
         }
 

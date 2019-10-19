@@ -43,7 +43,7 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             mailComposerVC.setCcRecipients(email.bcc)
             
             if let body = email.body {
-                mailComposerVC.setMessageBody(body, isHTML: false)
+                mailComposerVC.setMessageBody(body, isHTML: email.isHTML ?? false)
             }
 
             if let attachmentPath = email.attachmentPath,
@@ -82,7 +82,8 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             bcc: args[Email.BCC] as? [String],
             body: args[Email.BODY] as? String,
             attachmentPath: args[Email.ATTACHMENT_PATH] as? String,
-            subject: args[Email.SUBJECT] as? String
+            subject: args[Email.SUBJECT] as? String,
+            isHTML:args[Email.IS_HTML] as? Bool
         )
     }
 }
@@ -100,6 +101,7 @@ struct Email {
     static let CC = "cc"
     static let BCC = "bcc"
     static let ATTACHMENT_PATH = "attachment_path"
+    static let IS_HTML = "is_html"
 
     let recipients: [String]?
     let cc: [String]?
@@ -107,4 +109,5 @@ struct Email {
     let body: String?
     let attachmentPath: String?
     let subject: String?
+    let isHTML: Bool?
 }
