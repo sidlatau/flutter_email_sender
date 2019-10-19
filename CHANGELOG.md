@@ -1,3 +1,7 @@
+## 2.1.0
+
+* Added HTML support - thanks to @trancanhluc.
+
 ## 2.0.3
 
 * Finished migration to Android X.

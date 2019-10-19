@@ -16,6 +16,7 @@ final Email email = Email(
   cc: ['cc@example.com'],
   bcc: ['bcc@example.com'],
   attachmentPath: '/path/to/attachment.zip',
+  isHTML: false,
 );
 
 await FlutterEmailSender.send(email);
