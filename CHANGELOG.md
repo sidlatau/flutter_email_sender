@@ -1,3 +1,7 @@
+## 2.2.0
+
+* Improved email client app selection in Android.
+
 ## 2.1.0
 
 * Added HTML support - thanks to @trancanhluc.
