@@ -1,9 +1,9 @@
 package com.sidlatau.flutteremailsender
 
 import android.content.Intent
-import android.os.Build
-import android.text.Html
+import android.net.Uri
 import androidx.core.content.FileProvider
+import androidx.core.text.HtmlCompat
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -50,11 +50,7 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
             callback.error("error", "Activity == null!", null)
         }
 
-        val intent = Intent(Intent.ACTION_SEND)
-
-
-        intent.type = "vnd.android.cursor.dir/email"
-
+        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
 
         if (options.hasArgument(SUBJECT)) {
             val subject = options.argument<String>(SUBJECT)
@@ -65,14 +61,13 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
             val body = options.argument<String>(BODY)
             var isHtml = false
             if (options.hasArgument(IS_HTML)) {
-                isHtml = options.argument<Boolean>(IS_HTML)?:false
+                isHtml = options.argument<Boolean>(IS_HTML) ?: false
             }
             if (body != null) {
-                if(isHtml!=null && isHtml){
-                    intent.setType("text/html")
+                if (isHtml) {
                     intent.putExtra(Intent.EXTRA_HTML_TEXT, body)
-                    intent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(body))
-                }else{
+                    intent.putExtra(Intent.EXTRA_TEXT, HtmlCompat.fromHtml(body, HtmlCompat.FROM_HTML_MODE_LEGACY))
+                } else {
                     intent.putExtra(Intent.EXTRA_TEXT, body)
                 }
             }
@@ -107,6 +102,8 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
                 val file = File(attachmentPath)
                 val uri = FileProvider.getUriForFile(activity, registrar.context().packageName + ".file_provider", file)
 
+                intent.action = Intent.ACTION_SEND
+                intent.type = "vnd.android.cursor.dir/email"
                 intent.putExtra(Intent.EXTRA_STREAM, uri)
             }
         }

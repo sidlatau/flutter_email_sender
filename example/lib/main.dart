@@ -14,6 +14,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String attachment;
+  bool isHTML = false;
 
   final _recipientController = TextEditingController(
     text: 'example@example.com',
@@ -33,6 +34,7 @@ class _MyAppState extends State<MyApp> {
       subject: _subjectController.text,
       recipients: [_recipientController.text],
       attachmentPath: attachment,
+      isHTML: isHTML,
     );
 
     String platformResponse;
@@ -105,6 +107,15 @@ class _MyAppState extends State<MyApp> {
                       decoration: InputDecoration(
                           labelText: 'Body', border: OutlineInputBorder()),
                     ),
+                  ),
+                  CheckboxListTile(
+                    title: Text('HTML'),
+                    onChanged: (bool value) {
+                      setState(() {
+                        isHTML = value;
+                      });
+                    },
+                    value: isHTML,
                   ),
                   imagePath,
                 ],
