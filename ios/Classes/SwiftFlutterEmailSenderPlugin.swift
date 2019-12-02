@@ -40,7 +40,7 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
                 mailComposerVC.setSubject(subject)
             }
             mailComposerVC.setCcRecipients(email.cc)
-            mailComposerVC.setCcRecipients(email.bcc)
+            mailComposerVC.setBccRecipients(email.bcc)
             
             if let body = email.body {
                 mailComposerVC.setMessageBody(body, isHTML: email.isHTML ?? false)
