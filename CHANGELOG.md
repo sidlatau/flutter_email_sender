@@ -1,3 +1,7 @@
+## 2.2.1
+
+* Fixed problem with setting BCC in iOS. (Issue #29)
+
 ## 2.2.0
 
 * Improved email client app selection in Android.
