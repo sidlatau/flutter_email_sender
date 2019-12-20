@@ -1,3 +1,7 @@
+## 2.2.2
+
+* Updated Android dependencies.
+
 ## 2.2.1
 
 * Fixed problem with setting BCC in iOS. (Issue #29)
