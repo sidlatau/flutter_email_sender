@@ -6,8 +6,23 @@ class FlutterEmailSender {
   static const MethodChannel _channel =
       const MethodChannel('flutter_email_sender');
 
-  static Future<void> send(Email mail) {
-    return _channel.invokeMethod('send', mail.toJson());
+  static Future<String> send(Email mail) async {
+    try {
+      await _channel.invokeMethod('send', mail.toJson());
+      return "";
+    } catch (e) {
+      if (e is PlatformException) {
+        switch (e.code) {
+          case "not_available":
+            return "No email client found.";
+            break;
+          default:
+            return "Error in opening email";
+        }
+      } else {
+        return "Error in opening email";
+      }
+    }
   }
 }
 
