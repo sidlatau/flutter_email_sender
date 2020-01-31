@@ -40,7 +40,8 @@ class _MyAppState extends State<MyApp> {
     String platformResponse;
 
     try {
-      await FlutterEmailSender.send(email);
+      EmailSendingStatus emailStatus = await FlutterEmailSender.send(email);
+      print("email sending status -- $emailStatus");
       platformResponse = 'success';
     } catch (error) {
       platformResponse = error.toString();

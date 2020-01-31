@@ -1,26 +1,27 @@
 import 'dart:async';
-
 import 'package:flutter/services.dart';
+
+enum EmailSendingStatus { clientNotAvailable, unknown, sent }
 
 class FlutterEmailSender {
   static const MethodChannel _channel =
       const MethodChannel('flutter_email_sender');
 
-  static Future<String> send(Email mail) async {
+  static Future<EmailSendingStatus> send(Email mail) async {
     try {
       await _channel.invokeMethod('send', mail.toJson());
-      return "";
+      return EmailSendingStatus.sent;
     } catch (e) {
       if (e is PlatformException) {
         switch (e.code) {
           case "not_available":
-            return "No email client found.";
+            return EmailSendingStatus.clientNotAvailable;
             break;
           default:
-            return "Error in opening email";
+            return EmailSendingStatus.unknown;
         }
       } else {
-        return "Error in opening email";
+        return EmailSendingStatus.unknown;
       }
     }
   }
