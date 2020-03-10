@@ -13,7 +13,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String attachment;
+  List<String> attachments = [];
   bool isHTML = false;
 
   final _recipientController = TextEditingController(
@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
       body: _bodyController.text,
       subject: _subjectController.text,
       recipients: [_recipientController.text],
-      attachmentPath: attachment,
+      attachmentPaths: attachments,
       isHTML: isHTML,
     );
 
@@ -55,8 +55,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget imagePath = Text(attachment ?? '');
-
     return MaterialApp(
       theme: ThemeData(primaryColor: Colors.red),
       home: Scaffold(
@@ -117,7 +115,23 @@ class _MyAppState extends State<MyApp> {
                     },
                     value: isHTML,
                   ),
-                  imagePath,
+                  ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: attachments.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Row(
+                          children: <Widget>[
+                            Text((index + 1).toString()),
+                            SizedBox(width: 5),
+                            Expanded(
+                              child: Text(
+                                attachments[index],
+                                overflow: TextOverflow.fade,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                 ],
               ),
             ),
@@ -135,7 +149,7 @@ class _MyAppState extends State<MyApp> {
   void _openImagePicker() async {
     File pick = await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
-      attachment = pick.path;
+      attachments.add(pick.path);
     });
   }
 }

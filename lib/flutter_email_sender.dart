@@ -17,7 +17,7 @@ class Email {
   final List<String> cc;
   final List<String> bcc;
   final String body;
-  final String attachmentPath;
+  final List<String> attachmentPaths;
   final bool isHTML;
   Email({
     this.subject = '',
@@ -25,7 +25,7 @@ class Email {
     this.cc = const [],
     this.bcc = const [],
     this.body = '',
-    this.attachmentPath,
+    this.attachmentPaths,
     this.isHTML = false,
   });
 
@@ -36,7 +36,7 @@ class Email {
       'recipients': recipients,
       'cc': cc,
       'bcc': bcc,
-      'attachment_path': attachmentPath,
+      'attachment_paths': attachmentPaths,
       'is_html': isHTML
     };
   }
