@@ -115,23 +115,25 @@ class _MyAppState extends State<MyApp> {
                     },
                     value: isHTML,
                   ),
-                  ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: attachments.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Row(
-                          children: <Widget>[
-                            Text((index + 1).toString()),
-                            SizedBox(width: 5),
-                            Expanded(
-                              child: Text(
-                                attachments[index],
-                                overflow: TextOverflow.fade,
+                  Container(
+                    height: (attachments.length * 50).toDouble(),
+                    child: ListView.builder(
+                        itemCount: attachments.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Row(
+                            children: <Widget>[
+                              Text((index + 1).toString()),
+                              SizedBox(width: 5),
+                              Expanded(
+                                child: Text(
+                                  attachments[index],
+                                  overflow: TextOverflow.fade,
+                                ),
                               ),
-                            ),
-                          ],
-                        );
-                      }),
+                            ],
+                          );
+                        }),
+                  ),
                 ],
               ),
             ),

@@ -93,6 +93,7 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
                 intent.putExtra(Intent.EXTRA_BCC, listArrayToArray(bcc))
             }
         }
+
         if (options.hasArgument(ATTACHMENT_PATHS)) {
             val attachmentPaths = options.argument<ArrayList<String>>(ATTACHMENT_PATHS)
             if (attachmentPaths != null) {
@@ -100,9 +101,14 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
                 val uris = attachmentPaths.map {
                     FileProvider.getUriForFile(activity, registrar.context().packageName + ".file_provider", File(it))
                 }
-                intent.action = Intent.ACTION_SEND_MULTIPLE
                 intent.type = "vnd.android.cursor.dir/email"
-                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+                if (uris.count() == 1) {
+                    intent.action = Intent.ACTION_SEND
+                    intent.putExtra(Intent.EXTRA_STREAM, uris.first())
+                } else {
+                    intent.action = Intent.ACTION_SEND_MULTIPLE
+                    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+                }
             }
         }
 
