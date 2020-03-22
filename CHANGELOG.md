@@ -1,3 +1,8 @@
+## 3.0.0
+
+* Added ability to attach multiple files - thanks to @michalsuryntequiqo
+* BREAKING CHANGE: `attachmentPath` parameter becomes `attachmentPaths`
+
 ## 2.2.2
 
 * Updated Android dependencies.

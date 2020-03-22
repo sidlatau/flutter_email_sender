@@ -69,73 +69,58 @@ class _MyAppState extends State<MyApp> {
           ],
         ),
         body: SingleChildScrollView(
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _recipientController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Recipient',
-                      ),
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _recipientController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Recipient',
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _subjectController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Subject',
-                      ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _subjectController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Subject',
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _bodyController,
-                      maxLines: 10,
-                      decoration: InputDecoration(
-                          labelText: 'Body', border: OutlineInputBorder()),
-                    ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _bodyController,
+                    maxLines: 10,
+                    decoration: InputDecoration(
+                        labelText: 'Body', border: OutlineInputBorder()),
                   ),
-                  CheckboxListTile(
-                    title: Text('HTML'),
-                    onChanged: (bool value) {
-                      setState(() {
-                        isHTML = value;
-                      });
-                    },
-                    value: isHTML,
+                ),
+                CheckboxListTile(
+                  title: Text('HTML'),
+                  onChanged: (bool value) {
+                    setState(() {
+                      isHTML = value;
+                    });
+                  },
+                  value: isHTML,
+                ),
+                ...attachments.map(
+                  (item) => Text(
+                    item,
+                    overflow: TextOverflow.fade,
                   ),
-                  Container(
-                    height: (attachments.length * 50).toDouble(),
-                    child: ListView.builder(
-                        itemCount: attachments.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Row(
-                            children: <Widget>[
-                              Text((index + 1).toString()),
-                              SizedBox(width: 5),
-                              Expanded(
-                                child: Text(
-                                  attachments[index],
-                                  overflow: TextOverflow.fade,
-                                ),
-                              ),
-                            ],
-                          );
-                        }),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
