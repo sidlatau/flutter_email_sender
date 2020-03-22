@@ -15,7 +15,7 @@ final Email email = Email(
   recipients: ['example@example.com'],
   cc: ['cc@example.com'],
   bcc: ['bcc@example.com'],
-  attachmentPath: '/path/to/attachment.zip',
+  attachmentPaths: ['/path/to/attachment.zip'],
   isHTML: false,
 );
 

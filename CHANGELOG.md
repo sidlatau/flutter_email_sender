@@ -1,3 +1,7 @@
+## 3.0.1
+
+* Improved documentation
+
 ## 3.0.0
 
 * Added ability to attach multiple files - thanks to @michalsuryntequiqo
