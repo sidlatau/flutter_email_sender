@@ -46,13 +46,16 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
                 mailComposerVC.setMessageBody(body, isHTML: email.isHTML ?? false)
             }
 
-            if let attachmentPath = email.attachmentPath,
-                let fileData = try? Data(contentsOf: URL(fileURLWithPath: attachmentPath)) {
-                mailComposerVC.addAttachmentData(
-                    fileData,
-                    mimeType: "application/octet-stream",
-                    fileName: (attachmentPath as NSString).lastPathComponent
-                )
+            if let attachmentPaths = email.attachmentPaths {
+                for path in attachmentPaths {
+                    if let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)) {
+                        mailComposerVC.addAttachmentData(
+                            fileData,
+                            mimeType: "application/octet-stream",
+                            fileName: (path as NSString).lastPathComponent
+                        )
+                    }
+                }
             }
 
             viewController.present(mailComposerVC,
@@ -81,7 +84,7 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             cc: args[Email.CC] as? [String],
             bcc: args[Email.BCC] as? [String],
             body: args[Email.BODY] as? String,
-            attachmentPath: args[Email.ATTACHMENT_PATH] as? String,
+            attachmentPaths: args[Email.ATTACHMENT_PATHS] as? [String],
             subject: args[Email.SUBJECT] as? String,
             isHTML:args[Email.IS_HTML] as? Bool
         )
@@ -100,14 +103,14 @@ struct Email {
     static let RECIPIENTS = "recipients"
     static let CC = "cc"
     static let BCC = "bcc"
-    static let ATTACHMENT_PATH = "attachment_path"
+    static let ATTACHMENT_PATHS = "attachment_paths"
     static let IS_HTML = "is_html"
 
     let recipients: [String]?
     let cc: [String]?
     let bcc: [String]?
     let body: String?
-    let attachmentPath: String?
+    let attachmentPaths: [String]?
     let subject: String?
     let isHTML: Bool?
 }

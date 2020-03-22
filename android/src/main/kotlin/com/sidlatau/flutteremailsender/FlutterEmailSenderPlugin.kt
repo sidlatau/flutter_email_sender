@@ -17,7 +17,7 @@ private const val BODY = "body"
 private const val RECIPIENTS = "recipients"
 private const val CC = "cc"
 private const val BCC = "bcc"
-private const val ATTACHMENT_PATH = "attachment_path"
+private const val ATTACHMENT_PATHS = "attachment_paths"
 private const val IS_HTML = "is_html"
 private const val REQUEST_CODE_SEND = 607
 
@@ -94,17 +94,21 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
             }
         }
 
-        if (options.hasArgument(ATTACHMENT_PATH)) {
-            val attachmentPath = options.argument<String>(ATTACHMENT_PATH)
-            if (attachmentPath != null) {
+        if (options.hasArgument(ATTACHMENT_PATHS)) {
+            val attachmentPaths = options.argument<ArrayList<String>>(ATTACHMENT_PATHS)
+            if (attachmentPaths != null) {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-                val file = File(attachmentPath)
-                val uri = FileProvider.getUriForFile(activity, registrar.context().packageName + ".file_provider", file)
-
-                intent.action = Intent.ACTION_SEND
+                val uris = attachmentPaths.map {
+                    FileProvider.getUriForFile(activity, registrar.context().packageName + ".file_provider", File(it))
+                }
                 intent.type = "vnd.android.cursor.dir/email"
-                intent.putExtra(Intent.EXTRA_STREAM, uri)
+                if (uris.count() == 1) {
+                    intent.action = Intent.ACTION_SEND
+                    intent.putExtra(Intent.EXTRA_STREAM, uris.first())
+                } else {
+                    intent.action = Intent.ACTION_SEND_MULTIPLE
+                    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+                }
             }
         }
 
