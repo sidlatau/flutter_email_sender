@@ -6,8 +6,8 @@ class FlutterEmailSender {
   static const MethodChannel _channel =
       const MethodChannel('flutter_email_sender');
 
-  static Future<void> send(Email mail) {
-    return _channel.invokeMethod('send', mail.toJson());
+  static Future<String> send(Email mail) async {
+    return await _channel.invokeMethod('send', mail.toJson());
   }
 }
 

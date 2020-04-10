@@ -3,6 +3,7 @@ import UIKit
 import MessageUI
     
 public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
+    var result: FlutterResult?
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "flutter_email_sender", binaryMessenger: registrar.messenger())
 
@@ -30,6 +31,7 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             )
             return
         }
+        self.result = result
 
         if MFMailComposeViewController.canSendMail() {
             let mailComposerVC = MFMailComposeViewController()
@@ -59,8 +61,7 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             }
 
             viewController.present(mailComposerVC,
-                                   animated: true,
-                                   completion: { result(nil) }
+                                   animated: true
             )
         } else{
             result(FlutterError.init(code: "not_available",
@@ -93,6 +94,15 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
 
 extension SwiftFlutterEmailSenderPlugin : MFMailComposeViewControllerDelegate {
     public func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        let map: [MFMailComposeResult: String] = [
+                MFMailComposeResult.sent: "sent",
+                MFMailComposeResult.cancelled: "cancelled",
+                MFMailComposeResult.failed: "failed",
+                MFMailComposeResult.saved: "saved",
+            ]
+        if let callback = self.result {
+            callback(map[result])
+        }
         controller.dismiss(animated: true, completion: nil)
     }
 }
