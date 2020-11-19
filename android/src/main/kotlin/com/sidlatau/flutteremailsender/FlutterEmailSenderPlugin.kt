@@ -107,6 +107,18 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
             // handle the attached file(s). This is done because the intent data is ignored for ACTION_SEND and
             // ACTION_SEND_MULTIPLE. See: https://stackoverflow.com/a/42856167/14637
             intent.selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+
+            // From the ACTION_SEND_MULTIPLE docs:
+            // "This allows you to use FLAG_GRANT_READ_URI_PERMISSION when sharing content: URIs [...] If you don't set
+            // a ClipData, it will be copied there for you when calling Context#startActivity(Intent)."
+            // However, this doesn't always seem to be happening, so we have to do the dirty work ourselves.
+            val clipItems = attachmentUris.map({ ClipData.Item(it) })
+            val clipDescription = ClipDescription("", arrayOf("application/octet-stream"))
+            val clipData = ClipData(clipDescription, clipItems.first())
+            for (item in clipItems.drop(1)) {
+                clipData.addItem(item)
+            }
+            intent.clipData = clipData
         }
 
         if (html != null) {
