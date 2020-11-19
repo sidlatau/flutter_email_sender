@@ -68,66 +68,87 @@ class _MyAppState extends State<MyApp> {
             )
           ],
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: _recipientController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Recipient',
-                    ),
+        body: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _recipientController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Recipient',
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: _subjectController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Subject',
-                    ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _subjectController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Subject',
                   ),
                 ),
-                Padding(
+              ),
+              Expanded(
+                child: Padding(
                   padding: EdgeInsets.all(8.0),
                   child: TextField(
                     controller: _bodyController,
-                    maxLines: 10,
+                    maxLines: null,
+                    expands: true,
+                    textAlignVertical: TextAlignVertical.top,
                     decoration: InputDecoration(
                         labelText: 'Body', border: OutlineInputBorder()),
                   ),
                 ),
-                CheckboxListTile(
-                  title: Text('HTML'),
-                  onChanged: (bool value) {
-                    setState(() {
-                      isHTML = value;
-                    });
-                  },
-                  value: isHTML,
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
+                title: Text('HTML'),
+                onChanged: (bool value) {
+                  setState(() {
+                    isHTML = value;
+                  });
+                },
+                value: isHTML,
+              ),
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  children: <Widget>[
+                    for (var i = 0; i < attachments.length; i++) Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            attachments[i],
+                            softWrap: false,
+                            overflow: TextOverflow.fade,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.remove_circle),
+                          onPressed: () => { _removeAttachment(i) },
+                        )
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        icon: Icon(Icons.attach_file),
+                        onPressed: _openImagePicker,
+                      ),
+                    ),
+                  ],
                 ),
-                ...attachments.map(
-                  (item) => Text(
-                    item,
-                    overflow: TextOverflow.fade,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          icon: Icon(Icons.camera),
-          label: Text('Add Image'),
-          onPressed: _openImagePicker,
         ),
       ),
     );
@@ -135,8 +156,16 @@ class _MyAppState extends State<MyApp> {
 
   void _openImagePicker() async {
     File pick = await ImagePicker.pickImage(source: ImageSource.gallery);
+    if (pick != null) {
+      setState(() {
+        attachments.add(pick.path);
+      });
+    }
+  }
+
+  void _removeAttachment(int index) {
     setState(() {
-      attachments.add(pick.path);
+      attachments.removeAt(index);
     });
   }
 }
