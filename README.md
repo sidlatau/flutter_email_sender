@@ -2,7 +2,7 @@
 
 Allows send emails from flutter using native platform functionality.
 
-In android it opens default mail app via intent. `compileSdkVersion 28` is used in this plugin and it should be used in app too. 
+In android it opens default mail app via intent. 
 
 In iOS `MFMailComposeViewController` is used to compose an email.
 
