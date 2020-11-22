@@ -1,7 +1,6 @@
 name: flutter_email_sender
 description: Allows send emails from flutter using native platform functionality.
 version: 3.0.1
-author: Tautvydas Šidlauskas <tautvydas.sidlauskas@gmail.com>
 homepage: https://github.com/sidlatau/flutter_email_sender
 
 dependencies:
@@ -19,3 +18,4 @@ flutter:
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
+  flutter: ">=1.12.0 <2.0.0"
