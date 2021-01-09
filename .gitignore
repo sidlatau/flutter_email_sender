@@ -34,3 +34,4 @@ build/
 
 flutter_export_environment.sh
 .last_build_id
+flutter_sdk
