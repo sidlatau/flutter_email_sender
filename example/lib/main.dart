@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
@@ -156,7 +155,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _openImagePicker() async {
-    File pick = await ImagePicker.pickImage(source: ImageSource.gallery);
+    final picker = ImagePicker();
+    PickedFile pick = await picker.getImage(source: ImageSource.gallery);
     if (pick != null) {
       setState(() {
         attachments.add(pick.path);

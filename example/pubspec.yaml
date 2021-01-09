@@ -10,9 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^0.1.2
-  image_picker: ^0.5.0+3
-  path_provider: ^0.4.1
+  cupertino_icons: ^1.0.2
+  image_picker: ^0.6.7+21
+  path_provider: ^1.6.27
 
 dev_dependencies:
   flutter_test:
@@ -20,7 +20,6 @@ dev_dependencies:
 
   flutter_email_sender:
     path: ../
-
 
 flutter:
   uses-material-design: true
