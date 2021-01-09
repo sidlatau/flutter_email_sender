@@ -26,8 +26,6 @@ class _MyAppState extends State<MyApp> {
     text: 'Mail body.',
   );
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   Future<void> send() async {
     final Email email = Email(
       body: _bodyController.text,
@@ -48,9 +46,11 @@ class _MyAppState extends State<MyApp> {
 
     if (!mounted) return;
 
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: Text(platformResponse),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(platformResponse),
+      ),
+    );
   }
 
   @override
@@ -58,7 +58,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       theme: ThemeData(primaryColor: Colors.red),
       home: Scaffold(
-        key: _scaffoldKey,
         appBar: AppBar(
           title: Text('Plugin example app'),
           actions: <Widget>[
@@ -109,7 +108,8 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
               CheckboxListTile(
-                contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
                 title: Text('HTML'),
                 onChanged: (bool value) {
                   setState(() {
@@ -122,21 +122,22 @@ class _MyAppState extends State<MyApp> {
                 padding: EdgeInsets.all(8.0),
                 child: Column(
                   children: <Widget>[
-                    for (var i = 0; i < attachments.length; i++) Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Text(
-                            attachments[i],
-                            softWrap: false,
-                            overflow: TextOverflow.fade,
+                    for (var i = 0; i < attachments.length; i++)
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              attachments[i],
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.remove_circle),
-                          onPressed: () => { _removeAttachment(i) },
-                        )
-                      ],
-                    ),
+                          IconButton(
+                            icon: Icon(Icons.remove_circle),
+                            onPressed: () => {_removeAttachment(i)},
+                          )
+                        ],
+                      ),
                     Align(
                       alignment: Alignment.centerRight,
                       child: IconButton(
