@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
@@ -26,9 +25,7 @@ class _MyAppState extends State<MyApp> {
     text: 'Mail body.',
   );
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  Future<void> send() async {
+  Future<void> send(BuildContext context) async {
     final Email email = Email(
       body: _bodyController.text,
       subject: _subjectController.text,
@@ -48,7 +45,7 @@ class _MyAppState extends State<MyApp> {
 
     if (!mounted) return;
 
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(platformResponse),
     ));
   }
@@ -58,14 +55,13 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       theme: ThemeData(primaryColor: Colors.red),
       home: Scaffold(
-        key: _scaffoldKey,
         appBar: AppBar(
           title: Text('Plugin example app'),
           actions: <Widget>[
-            IconButton(
-              onPressed: send,
-              icon: Icon(Icons.send),
-            )
+            Builder(builder: (context) {
+              return IconButton(
+                  onPressed: () => send(context), icon: Icon(Icons.send));
+            }),
           ],
         ),
         body: Padding(
@@ -109,11 +105,12 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
               CheckboxListTile(
-                contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
                 title: Text('HTML'),
-                onChanged: (bool value) {
+                onChanged: (bool? value) {
                   setState(() {
-                    isHTML = value;
+                    isHTML = value ?? false;
                   });
                 },
                 value: isHTML,
@@ -122,21 +119,22 @@ class _MyAppState extends State<MyApp> {
                 padding: EdgeInsets.all(8.0),
                 child: Column(
                   children: <Widget>[
-                    for (var i = 0; i < attachments.length; i++) Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Text(
-                            attachments[i],
-                            softWrap: false,
-                            overflow: TextOverflow.fade,
+                    for (var i = 0; i < attachments.length; i++)
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              attachments[i],
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.remove_circle),
-                          onPressed: () => { _removeAttachment(i) },
-                        )
-                      ],
-                    ),
+                          IconButton(
+                            icon: Icon(Icons.remove_circle),
+                            onPressed: () => {_removeAttachment(i)},
+                          )
+                        ],
+                      ),
                     Align(
                       alignment: Alignment.centerRight,
                       child: IconButton(
@@ -155,10 +153,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _openImagePicker() async {
-    File pick = await ImagePicker.pickImage(source: ImageSource.gallery);
-    if (pick != null) {
+    PickedFile? pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+    if (pickedFile != null && pickedFile.path.isNotEmpty) {
       setState(() {
-        attachments.add(pick.path);
+        attachments.add(pickedFile.path);
       });
     }
   }

@@ -12,12 +12,12 @@ class FlutterEmailSender {
 }
 
 class Email {
-  final String subject;
-  final List<String> recipients;
-  final List<String> cc;
-  final List<String> bcc;
-  final String body;
-  final List<String> attachmentPaths;
+  final String? subject;
+  final List<String>? recipients;
+  final List<String>? cc;
+  final List<String>? bcc;
+  final String? body;
+  final List<String>? attachmentPaths;
   final bool isHTML;
   Email({
     this.subject = '',
