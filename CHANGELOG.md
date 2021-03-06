@@ -1,10 +1,14 @@
+## 5.0.0
+
+* Migrated to null-safety.
+  
 ## 4.0.0
 
 * Android: show only email apps in the chooser - thanks to @ttencate
 
 ## 3.0.1
 
-* Improved documentation
+* Improved documentation.
 
 ## 3.0.0
 
