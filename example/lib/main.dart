@@ -110,10 +110,12 @@ class _MyAppState extends State<MyApp> {
                 contentPadding:
                     EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
                 title: Text('HTML'),
-                onChanged: (bool value) {
-                  setState(() {
-                    isHTML = value;
-                  });
+                onChanged: (bool? value) {
+                  if (value != null) {
+                    setState(() {
+                      isHTML = value;
+                    });
+                  }
                 },
                 value: isHTML,
               ),
@@ -156,7 +158,7 @@ class _MyAppState extends State<MyApp> {
 
   void _openImagePicker() async {
     final picker = ImagePicker();
-    PickedFile pick = await picker.getImage(source: ImageSource.gallery);
+    PickedFile? pick = await picker.getImage(source: ImageSource.gallery);
     if (pick != null) {
       setState(() {
         attachments.add(pick.path);
