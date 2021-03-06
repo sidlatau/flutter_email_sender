@@ -6,12 +6,24 @@ import 'package:image_picker/image_picker.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(primaryColor: Colors.red),
+      home: EmailSender(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
+class EmailSender extends StatefulWidget {
+  const EmailSender({Key? key}) : super(key: key);
+
+  @override
+  _EmailSenderState createState() => _EmailSenderState();
+}
+
+class _EmailSenderState extends State<EmailSender> {
   List<String> attachments = [];
   bool isHTML = false;
 
@@ -54,103 +66,100 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(primaryColor: Colors.red),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Plugin example app'),
-          actions: <Widget>[
-            IconButton(
-              onPressed: send,
-              icon: Icon(Icons.send),
-            )
-          ],
-        ),
-        body: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Padding(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Plugin example app'),
+        actions: <Widget>[
+          IconButton(
+            onPressed: send,
+            icon: Icon(Icons.send),
+          )
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _recipientController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Recipient',
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _subjectController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Subject',
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
                 padding: EdgeInsets.all(8.0),
                 child: TextField(
-                  controller: _recipientController,
+                  controller: _bodyController,
+                  maxLines: null,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Recipient',
-                  ),
+                      labelText: 'Body', border: OutlineInputBorder()),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _subjectController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Subject',
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: _bodyController,
-                    maxLines: null,
-                    expands: true,
-                    textAlignVertical: TextAlignVertical.top,
-                    decoration: InputDecoration(
-                        labelText: 'Body', border: OutlineInputBorder()),
-                  ),
-                ),
-              ),
-              CheckboxListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                title: Text('HTML'),
-                onChanged: (bool? value) {
-                  if (value != null) {
-                    setState(() {
-                      isHTML = value;
-                    });
-                  }
-                },
-                value: isHTML,
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Column(
-                  children: <Widget>[
-                    for (var i = 0; i < attachments.length; i++)
-                      Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Text(
-                              attachments[i],
-                              softWrap: false,
-                              overflow: TextOverflow.fade,
-                            ),
+            ),
+            CheckboxListTile(
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
+              title: Text('HTML'),
+              onChanged: (bool? value) {
+                if (value != null) {
+                  setState(() {
+                    isHTML = value;
+                  });
+                }
+              },
+              value: isHTML,
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  for (var i = 0; i < attachments.length; i++)
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            attachments[i],
+                            softWrap: false,
+                            overflow: TextOverflow.fade,
                           ),
-                          IconButton(
-                            icon: Icon(Icons.remove_circle),
-                            onPressed: () => {_removeAttachment(i)},
-                          )
-                        ],
-                      ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: IconButton(
-                        icon: Icon(Icons.attach_file),
-                        onPressed: _openImagePicker,
-                      ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.remove_circle),
+                          onPressed: () => {_removeAttachment(i)},
+                        )
+                      ],
                     ),
-                  ],
-                ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: Icon(Icons.attach_file),
+                      onPressed: _openImagePicker,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
