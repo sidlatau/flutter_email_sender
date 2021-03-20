@@ -23,6 +23,21 @@ await FlutterEmailSender.send(email);
 
 ``` 
 
+## Android Setup
+
+With Android 11, package visibility is introduced that alters the ability to query installed applications and packages on a user’s device. To enable your application to get visibility into the packages you will need to add a list of queries into your AndroidManifest.xml.
+
+```
+<manifest package="com.mycompany.myapp">
+  <queries>
+    <intent>
+      <action android:name="android.intent.action.SENDTO" />
+      <data android:scheme="mailto" />
+    </intent>
+  </queries>
+</manifest>
+```
+
 ## Getting Started
 
 For help getting started with Flutter, view our online
