@@ -1,10 +1,14 @@
 package com.sidlatau.flutteremailsender
 
+import android.app.Activity
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Intent
 import android.net.Uri
-import android.os.Parcelable
 import androidx.core.content.FileProvider
 import androidx.core.text.HtmlCompat
 import io.flutter.plugin.common.MethodCall
@@ -24,16 +28,47 @@ private const val ATTACHMENT_PATHS = "attachment_paths"
 private const val IS_HTML = "is_html"
 private const val REQUEST_CODE_SEND = 607
 
-class FlutterEmailSenderPlugin(private val registrar: Registrar)
-    : MethodCallHandler, PluginRegistry.ActivityResultListener {
+class FlutterEmailSenderPlugin
+    : FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.ActivityResultListener {
     companion object {
+
+        private const val methodChannelName = "flutter_email_sender"
+
+        var activity: Activity? = null
+
         @JvmStatic
         fun registerWith(registrar: Registrar) {
-            val channel = MethodChannel(registrar.messenger(), "flutter_email_sender")
-            val plugin = FlutterEmailSenderPlugin(registrar)
+            val channel = MethodChannel(registrar.messenger(), methodChannelName)
+            val plugin = FlutterEmailSenderPlugin()
             registrar.addActivityResultListener(plugin)
             channel.setMethodCallHandler(plugin)
         }
+    }
+
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        val channel = MethodChannel(binding.binaryMessenger, methodChannelName)
+        channel.setMethodCallHandler(FlutterEmailSenderPlugin())
+    }
+
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    }
+
+    override fun onAttachedToActivity(activityPluginBinding: ActivityPluginBinding) {
+        activity = activityPluginBinding.activity
+        activityPluginBinding.addActivityResultListener(this)
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        activity = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(activityPluginBinding: ActivityPluginBinding) {
+        activity = activityPluginBinding.activity
+        activityPluginBinding.addActivityResultListener(this)
+    }
+
+    override fun onDetachedFromActivity() {
+        activity = null
     }
 
     private var channelResult: Result? = null
@@ -50,9 +85,9 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
     }
 
     private fun sendEmail(options: MethodCall, callback: Result) {
-        val activity = registrar.activity()
         if (activity == null) {
             callback.error("error", "Activity == null!", null)
+            return
         }
 
         val body = options.argument<String>(BODY)
@@ -74,7 +109,7 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
             }
         }
         val attachmentUris = attachmentPaths.map {
-            FileProvider.getUriForFile(activity, registrar.context().packageName + ".file_provider", File(it))
+            FileProvider.getUriForFile(activity!!, activity!!.packageName + ".file_provider", File(it))
         }
 
         val intent = Intent()
@@ -141,10 +176,10 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
             intent.putExtra(Intent.EXTRA_BCC, listArrayToArray(bcc))
         }
 
-        val packageManager = activity.packageManager
+        val packageManager = activity?.packageManager
 
-        if (packageManager.resolveActivity(intent, 0) != null) {
-            activity.startActivityForResult(intent, REQUEST_CODE_SEND)
+        if (packageManager?.resolveActivity(intent, 0) != null) {
+            activity?.startActivityForResult(intent, REQUEST_CODE_SEND)
         } else {
             callback.error("not_available", "No email clients found!", null)
         }
