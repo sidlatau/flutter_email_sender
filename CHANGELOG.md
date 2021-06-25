@@ -1,3 +1,7 @@
+## 5.0.1
+
+* Fixed Android v2 embedding problem - thanks @sergey-triputsco
+
 ## 5.0.0
 
 * Migrated to null-safety.
