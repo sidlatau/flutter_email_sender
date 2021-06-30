@@ -47,7 +47,7 @@ class FlutterEmailSenderPlugin
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val channel = MethodChannel(binding.binaryMessenger, methodChannelName)
-        channel.setMethodCallHandler(FlutterEmailSenderPlugin())
+        channel.setMethodCallHandler(this)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -75,10 +75,10 @@ class FlutterEmailSenderPlugin
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         if (call.method == "send") {
-            sendEmail(call, result)
             // If the call threw an exception, Flutter already sent a result to the channel,
             // so we don't need to send a result from onActivityResult anymore.
             this.channelResult = result
+            sendEmail(call, result)
         } else {
             result.notImplemented()
         }
