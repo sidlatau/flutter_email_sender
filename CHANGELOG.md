@@ -1,3 +1,7 @@
+## 5.0.2
+
+* Fixed problem when future never completes (#73) - thanks @zuzi-m
+  
 ## 5.0.1
 
 * Fixed Android v2 embedding problem - thanks @sergey-triputsco
