@@ -115,7 +115,7 @@ class FlutterEmailSenderPlugin
         val intent = Intent()
 
         // We need a different intent action depending on the number of attachments.
-        if (attachmentUris.size == 0) {
+        if (attachmentUris.isEmpty()) {
             intent.action = Intent.ACTION_SENDTO
             intent.data = Uri.parse("mailto:")
         } else {
@@ -138,7 +138,7 @@ class FlutterEmailSenderPlugin
             // "This allows you to use FLAG_GRANT_READ_URI_PERMISSION when sharing content: URIs [...] If you don't set
             // a ClipData, it will be copied there for you when calling Context#startActivity(Intent)."
             // However, this doesn't always seem to be happening, so we have to do the dirty work ourselves.
-            val clipItems = attachmentUris.map({ ClipData.Item(it) })
+            val clipItems = attachmentUris.map { ClipData.Item(it) }
             val clipDescription = ClipDescription("", arrayOf("application/octet-stream"))
             val clipData = ClipData(clipDescription, clipItems.first())
             for (item in clipItems.drop(1)) {
