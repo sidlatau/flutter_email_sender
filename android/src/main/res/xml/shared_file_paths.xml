@@ -3,5 +3,6 @@
     <cache-path name="my_cache" path="."/>
     <external-path name="external" path="."/>
     <files-path name="files" path="."/>
+    <files-path name="files" path="../"/>
     <external-files-path name="external_files" path="." />
 </paths>

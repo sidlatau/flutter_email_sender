@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(MyApp());
 
@@ -52,6 +54,7 @@ class _EmailSenderState extends State<EmailSender> {
       await FlutterEmailSender.send(email);
       platformResponse = 'success';
     } catch (error) {
+      print(error);
       platformResponse = error.toString();
     }
 
@@ -156,6 +159,10 @@ class _EmailSenderState extends State<EmailSender> {
                       onPressed: _openImagePicker,
                     ),
                   ),
+                  TextButton(
+                    child: Text('Attach file in app documents directory'),
+                    onPressed: () => _attachFileFromAppDocumentsDirectoy(),
+                  ),
                 ],
               ),
             ),
@@ -179,5 +186,24 @@ class _EmailSenderState extends State<EmailSender> {
     setState(() {
       attachments.removeAt(index);
     });
+  }
+
+  Future<void> _attachFileFromAppDocumentsDirectoy() async {
+    try {
+      final appDocumentDir = await getApplicationDocumentsDirectory();
+      final filePath = appDocumentDir.path + '/file.txt';
+      final file = File(filePath);
+      await file.writeAsString('Text file in app directory');
+
+      setState(() {
+        attachments.add(filePath);
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to create file in applicion directory'),
+        ),
+      );
+    }
   }
 }
