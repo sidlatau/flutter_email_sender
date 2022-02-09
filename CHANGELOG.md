@@ -1,3 +1,9 @@
+## 5.1.0
+
+* Updated android references: replaced refereces for jcenter, updated compile and target SDK to 31 (#82)
+* Fixed issue for attaching file from application documents directory (#21, #35, #66) 
+* Updated example app (#52)
+
 ## 5.0.2
 
 * Fixed problem when future never completes (#73) - thanks @zuzi-m
