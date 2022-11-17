@@ -16,7 +16,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.File
 
 private const val SUBJECT = "subject"
@@ -35,14 +34,6 @@ class FlutterEmailSenderPlugin
         private const val methodChannelName = "flutter_email_sender"
 
         var activity: Activity? = null
-
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            val channel = MethodChannel(registrar.messenger(), methodChannelName)
-            val plugin = FlutterEmailSenderPlugin()
-            registrar.addActivityResultListener(plugin)
-            channel.setMethodCallHandler(plugin)
-        }
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -122,29 +113,30 @@ class FlutterEmailSenderPlugin
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
             if (attachmentUris.size == 1) {
-                intent.action = Intent.ACTION_SEND
+                intent.action = Intent.ACTION_SENDTO
+                intent.data = Uri.parse("mailto:")
                 intent.putExtra(Intent.EXTRA_STREAM, attachmentUris.first())
+                // Add a selector intent to make sure that only email apps are shown, instead of just any app that can
+                // handle the attached file(s). This is done because the intent data is ignored for ACTION_SEND and
+                // ACTION_SEND_MULTIPLE. See: https://stackoverflow.com/a/42856166/14637
+                intent.selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+
+                // From the ACTION_SEND_MULTIPLE docs:
+                // "This allows you to use FLAG_GRANT_READ_URI_PERMISSION when sharing content: URIs [...] If you don't set
+                // a ClipData, it will be copied there for you when calling Context#startActivity(Intent)."
+                // However, this doesn't always seem to be happening, so we have to do the dirty work ourselves.
+                val clipItems = attachmentUris.map { ClipData.Item(it) }
+                val clipDescription = ClipDescription("", arrayOf("application/octet-stream"))
+                val clipData = ClipData(clipDescription, clipItems.first())
+                for (item in clipItems.drop(1)) {
+                    clipData.addItem(item)
+                }
+                intent.clipData = clipData
             } else {
                 intent.action = Intent.ACTION_SEND_MULTIPLE
+                intent.type = "text/plain";
                 intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(attachmentUris))
             }
-
-            // Add a selector intent to make sure that only email apps are shown, instead of just any app that can
-            // handle the attached file(s). This is done because the intent data is ignored for ACTION_SEND and
-            // ACTION_SEND_MULTIPLE. See: https://stackoverflow.com/a/42856167/14637
-            intent.selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
-
-            // From the ACTION_SEND_MULTIPLE docs:
-            // "This allows you to use FLAG_GRANT_READ_URI_PERMISSION when sharing content: URIs [...] If you don't set
-            // a ClipData, it will be copied there for you when calling Context#startActivity(Intent)."
-            // However, this doesn't always seem to be happening, so we have to do the dirty work ourselves.
-            val clipItems = attachmentUris.map { ClipData.Item(it) }
-            val clipDescription = ClipDescription("", arrayOf("application/octet-stream"))
-            val clipData = ClipData(clipDescription, clipItems.first())
-            for (item in clipItems.drop(1)) {
-                clipData.addItem(item)
-            }
-            intent.clipData = clipData
         }
 
         if (text != null) {
