@@ -53,6 +53,7 @@ android {
     lint {
         disable 'InvalidPackage'
     }
+    namespace 'com.sidlatau.flutteremailsenderexample'
 }
 
 flutter {
