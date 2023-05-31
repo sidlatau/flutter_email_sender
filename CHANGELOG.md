@@ -1,3 +1,7 @@
+## 6.0.0
+
+- Updated android dependencies, using gradle 8.0
+
 ## 5.2.0
 
 - Updated android references: updated compile and target SDK to 33
