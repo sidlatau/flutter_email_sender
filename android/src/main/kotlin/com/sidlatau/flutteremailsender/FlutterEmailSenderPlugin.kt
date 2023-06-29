@@ -113,7 +113,9 @@ class FlutterEmailSenderPlugin
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
             if (attachmentUris.size == 1) {
-                intent.action = Intent.ACTION_SENDTO
+                //https://github.com/sidlatau/flutter_email_sender/issues/91
+                // ACTION_SENDTO here does not work on some devices
+                intent.action = Intent.ACTION_SEND
                 intent.data = Uri.parse("mailto:")
                 intent.putExtra(Intent.EXTRA_STREAM, attachmentUris.first())
                 // Add a selector intent to make sure that only email apps are shown, instead of just any app that can

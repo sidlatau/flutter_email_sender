@@ -1,3 +1,7 @@
+## 6.0.1
+
+- Use SEND_TO action for Android (fixes #91)
+
 ## 6.0.0
 
 - Updated android dependencies, using gradle 8.0
