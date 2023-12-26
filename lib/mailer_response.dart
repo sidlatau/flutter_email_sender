@@ -13,13 +13,17 @@ enum MailerResponse {
 }
 
 MailerResponse sendPlatformResponse(final String? response) {
+  if (response == null) {
+    return MailerResponse.sent;
+  }
   switch (response) {
     case 'saved':
       return MailerResponse.saved;
     case 'cancelled':
       return MailerResponse.cancelled;
     case 'sent':
-    default:
       return MailerResponse.sent;
+    default:
+      return MailerResponse.unknown;
   }
 }
