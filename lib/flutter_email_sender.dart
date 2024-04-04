@@ -51,3 +51,9 @@ class Email {
     };
   }
 }
+
+extension EmailExt on Email {
+  Future<void> send() {
+    return FlutterEmailSender.send(this);
+  }
+}
