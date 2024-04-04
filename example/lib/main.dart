@@ -28,6 +28,7 @@ class EmailSender extends StatefulWidget {
 class _EmailSenderState extends State<EmailSender> {
   List<String> attachments = [];
   bool isHTML = false;
+  final _canSend = FlutterEmailSender.canSend();
 
   final _recipientController = TextEditingController(
     text: 'example@example.com',
@@ -73,9 +74,18 @@ class _EmailSenderState extends State<EmailSender> {
       appBar: AppBar(
         title: Text('Plugin example app'),
         actions: <Widget>[
-          IconButton(
-            onPressed: send,
-            icon: Icon(Icons.send),
+          FutureBuilder<bool>(
+            future: _canSend,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || snapshot.data == false) {
+                return const SizedBox();
+              }
+
+              return IconButton(
+                onPressed: send,
+                icon: Icon(Icons.send),
+              );
+            },
           )
         ],
       ),
