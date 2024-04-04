@@ -18,5 +18,6 @@ Allows send emails from flutter using native platform functionality.
   
   s.ios.deployment_target = '8.0'
   s.swift_version = '5.0'
+  s.resource_bundles = {'flutter_email_sender' => ['Resources/PrivacyInfo.xcprivacy']}
 end
 
