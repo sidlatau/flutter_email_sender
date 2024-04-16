@@ -1,3 +1,7 @@
+## 6.0.3
+
+- Added iOS privacy manifest
+
 ## 6.0.2
 
 - Add Java 1.8 compile options and Kotlin JVM target in build.gradle (#99)

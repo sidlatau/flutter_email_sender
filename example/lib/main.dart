@@ -174,7 +174,7 @@ class _EmailSenderState extends State<EmailSender> {
 
   void _openImagePicker() async {
     final picker = ImagePicker();
-    PickedFile? pick = await picker.getImage(source: ImageSource.gallery);
+    final pick = await picker.pickImage(source: ImageSource.gallery);
     if (pick != null) {
       setState(() {
         attachments.add(pick.path);
