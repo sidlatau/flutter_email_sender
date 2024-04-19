@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -8,6 +9,14 @@ class FlutterEmailSender {
 
   static Future<void> send(Email mail) {
     return _channel.invokeMethod('send', mail.toJson());
+  }
+
+  static Future<bool> canSend() async {
+    if (Platform.isIOS) {
+      return await _channel.invokeMethod('canSend');
+    }
+
+    return true;
   }
 }
 
@@ -19,6 +28,7 @@ class Email {
   final String body;
   final List<String>? attachmentPaths;
   final bool isHTML;
+
   Email({
     this.subject = '',
     this.recipients = const [],
@@ -39,5 +49,11 @@ class Email {
       'attachment_paths': attachmentPaths,
       'is_html': isHTML
     };
+  }
+}
+
+extension EmailExt on Email {
+  Future<void> send() {
+    return FlutterEmailSender.send(this);
   }
 }

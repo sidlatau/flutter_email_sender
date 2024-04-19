@@ -15,9 +15,16 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "send":
             sendMail(call, result: result)
+        case "canSend":
+            canSend(call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+    
+    private func canSend(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let canSend = MFMailComposeViewController.canSendMail();
+        result(canSend)
     }
 
     private func sendMail(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
