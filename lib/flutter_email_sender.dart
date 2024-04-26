@@ -2,12 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import 'mailer_response.dart';
+
 class FlutterEmailSender {
   static const MethodChannel _channel =
       const MethodChannel('flutter_email_sender');
 
-  static Future<void> send(Email mail) {
-    return _channel.invokeMethod('send', mail.toJson());
+  static Future<MailerResponse> send(Email mail) async {
+    final dynamic response = await _channel.invokeMethod('send', mail.toJson());
+
+    return sendPlatformResponse(response);
   }
 }
 
