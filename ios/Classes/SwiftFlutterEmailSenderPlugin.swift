@@ -3,6 +3,7 @@ import UIKit
 import MessageUI
     
 public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
+    var notificationSender: FlutterResult?
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "flutter_email_sender", binaryMessenger: registrar.messenger())
 
@@ -12,6 +13,7 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        notificationSender = result
         switch call.method {
         case "send":
             sendMail(call, result: result)
@@ -60,7 +62,7 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
 
             viewController.present(mailComposerVC,
                                    animated: true,
-                                   completion: { result(nil) }
+                                   completion: {  }
             )
         } else{
             result(FlutterError.init(code: "not_available",
@@ -89,12 +91,54 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             isHTML:args[Email.IS_HTML] as? Bool
         )
     }
+    
+    
+    // Property with property observer
+var resultValue: MFMailComposeResult = MFMailComposeResult.cancelled {
+    didSet {
+        // This code will execute whenever the resultValue changes
+        handleResultValueChange()
+    }
+}
+
+// Function to simulate changing the resultValue
+func changeResultValueToSent(result: MFMailComposeResult) {
+    resultValue = result
+}
+
+// Function called when resultValue changes
+func handleResultValueChange() {
+    var resultString = ""
+   
+    
+    // Perform actions based on the changed resultValue
+    switch resultValue {
+        
+    case .cancelled:
+        resultString = "resultString"
+    case .saved:
+        resultString = "saved"
+    case .sent:
+        resultString = "sent"
+    case .failed:
+        resultString = "failed"
+    @unknown default:
+        resultString = "unknown"
+    }
+
+    // return result to flutter
+    if let result  = notificationSender {
+        result(resultString)
+    }
+}
 }
 
 extension SwiftFlutterEmailSenderPlugin : MFMailComposeViewControllerDelegate {
     public func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.dismiss(animated: true, completion: nil)
+        self.changeResultValueToSent(result: result)
     }
+
 }
 
 struct Email {
