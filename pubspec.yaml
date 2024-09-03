@@ -6,6 +6,7 @@ homepage: https://github.com/sidlatau/flutter_email_sender
 dependencies:
   flutter:
     sdk: flutter
+  url_launcher: ^6.2.6
 
 flutter:
   plugin:

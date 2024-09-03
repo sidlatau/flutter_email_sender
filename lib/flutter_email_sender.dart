@@ -1,14 +1,39 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FlutterEmailSender {
   static const MethodChannel _channel =
       const MethodChannel('flutter_email_sender');
 
-  static Future<void> send(Email mail) {
+  static Future<void> send(Email mail) async {
+    if (kIsWeb) {
+      final Uri emailLaunchUri = Uri(
+        scheme: 'mailto',
+        path: mail.recipients.join(','),
+        query: encodeQueryParameters(<String, String>{
+          'subject': mail.subject,
+          'cc': mail.cc.join(','),
+          'bcc': mail.bcc.join(','),
+          'body': mail.body,
+        }),
+      );
+
+      await launchUrl(emailLaunchUri);
+      return;
+    }
+
     return _channel.invokeMethod('send', mail.toJson());
   }
+}
+
+String? encodeQueryParameters(Map<String, String> params) {
+  return params.entries
+      .map((MapEntry<String, String> e) =>
+          '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+      .join('&');
 }
 
 class Email {
