@@ -4,7 +4,7 @@ description: Demonstrates how to use the flutter_email_sender plugin.
 version: 1.0.0
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:

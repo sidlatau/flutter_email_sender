@@ -38,3 +38,6 @@ flutter_sdk
 
 # FVM Version Cache
 .fvm/
+
+.build/
+.swiftpm/

@@ -1,3 +1,8 @@
+## 7.0.0
+
+- Add Swift Package Manager support.
+- Remove Objective-C files.
+
 ## 6.0.3
 
 - Added iOS privacy manifest

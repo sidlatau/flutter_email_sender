@@ -1,12 +1,12 @@
 import Flutter
 import UIKit
 import MessageUI
-    
-public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
+
+public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "flutter_email_sender", binaryMessenger: registrar.messenger())
 
-        let instance = SwiftFlutterEmailSenderPlugin()
+        let instance = FlutterEmailSenderPlugin()
 
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
@@ -41,7 +41,7 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             }
             mailComposerVC.setCcRecipients(email.cc)
             mailComposerVC.setBccRecipients(email.bcc)
-            
+
             if let body = email.body {
                 mailComposerVC.setMessageBody(body, isHTML: email.isHTML ?? false)
             }
@@ -91,7 +91,7 @@ public class SwiftFlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     }
 }
 
-extension SwiftFlutterEmailSenderPlugin : MFMailComposeViewControllerDelegate {
+extension FlutterEmailSenderPlugin : MFMailComposeViewControllerDelegate {
     public func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.dismiss(animated: true, completion: nil)
     }
