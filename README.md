@@ -1,8 +1,8 @@
 # flutter_email_sender
 
-Allows send emails from flutter using native platform functionality.
+Allows sending emails from flutter using native platform functionalities.
 
-In android it opens default mail app via intent. 
+In android it opens the default mail app via `Intent`. 
 
 In iOS `MFMailComposeViewController` is used to compose an email.
 
