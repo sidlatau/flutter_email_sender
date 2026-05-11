@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_email_sender'
-  s.version          = '0.0.1'
+  s.version          = '8.0.0'
   s.summary          = 'Allows send emails from flutter using native platform functionality.'
   s.description      = <<-DESC
 Allows send emails from flutter using native platform functionality.
