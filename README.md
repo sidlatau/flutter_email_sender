@@ -6,6 +6,9 @@ In android it opens default mail app via intent.
 
 In iOS `MFMailComposeViewController` is used to compose an email.
 
+In macOS `NSSharingService` with `.composeEmail` is used to compose an email.
+The macOS implementation does not support `cc`, `bcc`, or `isHTML`.
+
 # Example
 
 ```dart
