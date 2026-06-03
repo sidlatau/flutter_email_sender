@@ -20,5 +20,5 @@ flutter:
         pluginClass: FlutterEmailSenderPlugin
 
 environment:
-  sdk: ">=2.12.0 <4.0.0"
-  flutter: ">=1.22.6"
+  sdk: ">=3.11.0 <4.0.0"
+  flutter: ">=3.41.0"

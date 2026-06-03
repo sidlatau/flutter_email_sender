@@ -1,4 +1,4 @@
-require("flutter-tools").setup_project {
+vim.g.flutter_tools_project_config = {
   {
     name = "Example",
     target = "lib/main.dart",

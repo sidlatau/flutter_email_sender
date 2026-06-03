@@ -12,10 +12,11 @@ Allows sending emails from Flutter using native platform functionality.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'flutter_email_sender/Sources/flutter_email_sender/**/*.swift'
   s.dependency 'FlutterMacOS'
   
   s.platform = :osx, '10.13'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version = '5.0'
+  s.resource_bundles = {'flutter_email_sender_privacy' => ['flutter_email_sender/Sources/flutter_email_sender/PrivacyInfo.xcprivacy']}
 end

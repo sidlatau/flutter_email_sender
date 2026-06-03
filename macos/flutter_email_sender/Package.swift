@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "flutter_email_sender",
     platforms: [
-        .iOS("13.0"),
+        .macOS("10.15"),
     ],
     products: [
         .library(name: "flutter-email-sender", targets: ["flutter_email_sender"])
