@@ -1,3 +1,7 @@
+## 9.0.0
+
+- Add macos support with Swift Package Manager.
+
 ## 8.0.0
 
 - Updated kotlin version to 2.2 
