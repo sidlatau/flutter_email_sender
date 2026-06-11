@@ -1,4 +1,4 @@
-## Unreleased
+## 10.0.0
 
 - BREAKING: updates minimum supported versions to Flutter 3.44 / Dart 3.12.
 - Android: migrates to built-in Kotlin for plugin authors and no longer applies `kotlin-android` from the plugin module.
