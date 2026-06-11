@@ -1,6 +1,5 @@
 plugins {
     id "com.android.application"
-    id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
 
@@ -25,18 +24,10 @@ if (flutterVersionName == null) {
 android {
     compileSdkVersion 36
 
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
-
     compileOptions {
            sourceCompatibility JavaVersion.VERSION_17
            targetCompatibility JavaVersion.VERSION_17
        }
-
-    kotlin {
-        jvmToolchain(17)
-    }
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).

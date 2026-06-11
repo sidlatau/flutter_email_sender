@@ -1,3 +1,9 @@
+## Unreleased
+
+- BREAKING: updates minimum supported versions to Flutter 3.44 / Dart 3.12.
+- Android: migrates to built-in Kotlin for plugin authors and no longer applies `kotlin-android` from the plugin module.
+- Android example app migrated to AGP 9 and Gradle 9.1.0.
+
 ## 9.0.0
 
 - Add macos support with Swift Package Manager.
