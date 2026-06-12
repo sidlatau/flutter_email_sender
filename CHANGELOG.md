@@ -3,9 +3,9 @@
 Release notes for the published plugin packages now live with each package:
 
 - `packages/flutter_email_sender/CHANGELOG.md`
-- `packages/flutter_email_sender_platform_interface/pubspec.yaml` version history starts at federation
-- `packages/flutter_email_sender_method_channel/pubspec.yaml` version history starts at federation
-- `packages/flutter_email_sender_web/pubspec.yaml` version history starts at federation
+- `packages/flutter_email_sender_platform_interface/CHANGELOG.md`
+- `packages/flutter_email_sender_method_channel/CHANGELOG.md`
+- `packages/flutter_email_sender_web/CHANGELOG.md`
 
 ## 5.0.0
 

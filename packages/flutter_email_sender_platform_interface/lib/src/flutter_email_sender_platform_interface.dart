@@ -19,8 +19,6 @@ abstract class FlutterEmailSenderPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  static bool get usesDefaultInstance => identical(_instance, _defaultInstance);
-
   Future<void> send(Email email);
 
   Future<EmailCapabilities> getCapabilities();

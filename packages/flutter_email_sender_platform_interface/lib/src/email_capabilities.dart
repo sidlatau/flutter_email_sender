@@ -61,8 +61,8 @@ class EmailCapabilities {
   void validateEmail(Email email, {required String platformName}) {
     if (!canSend) {
       throw PlatformException(
-        code: 'unsupported',
-        message: 'flutter_email_sender is not supported on $platformName.',
+        code: 'not_available',
+        message: 'Email composer is unavailable on $platformName.',
       );
     }
 

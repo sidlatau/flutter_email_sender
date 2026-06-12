@@ -4,7 +4,9 @@
 - Android: migrates the plugin to Flutter's built-in Kotlin support for plugin authors.
 - Adds a federated platform interface and a web implementation using `mailto:`.
 - Adds `FlutterEmailSender.getCapabilities()`.
-- BREAKING: unsupported fields now throw `PlatformException(code: 'unsupported')` instead of being silently ignored on partial-support platforms such as macOS and web.
+- BREAKING: when migrating from 9.x, unsupported fields now throw `FlutterEmailSenderUnsupportedFeatureException` instead of being silently ignored on partial-support platforms such as macOS and web.
+- BREAKING: when migrating from 9.x, runtime unavailability now throws `FlutterEmailSenderNotAvailableException` instead of requiring callers to inspect `PlatformException.code`.
+- Adds `EmailCapabilities.canSend` for runtime availability checks.
 
 ## 9.0.0
 

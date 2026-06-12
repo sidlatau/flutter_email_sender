@@ -9,6 +9,8 @@ In iOS `MFMailComposeViewController` is used to compose an email.
 In macOS `NSSharingService` with `.composeEmail` is used to compose an email.
 The plugin exposes platform capabilities so apps can adapt their UI before sending.
 
+The public API throws typed Dart exceptions rather than exposing raw `PlatformException`s for expected failures.
+
 ## Platform Support
 
 | Platform | `cc` | `bcc` | HTML body | Attachments |
@@ -25,6 +27,10 @@ Web support uses `mailto:` and depends on browser and configured mail client beh
 ```dart
 final capabilities = await FlutterEmailSender.getCapabilities();
 
+if (!capabilities.canSend) {
+  // No configured mail account, simulator, or no available mail client.
+}
+
 final Email email = Email(
   body: 'Email body',
   subject: 'Email subject',
@@ -40,7 +46,33 @@ final Email email = Email(
 await FlutterEmailSender.send(email);
 ```
 
-If an app requests features that the current platform cannot honor, `send` throws `PlatformException` with code `unsupported`.
+```dart
+try {
+  await FlutterEmailSender.send(email);
+} on FlutterEmailSenderNotAvailableException {
+  // Email composer is unavailable on this device right now.
+} on FlutterEmailSenderUnsupportedFeatureException catch (error) {
+  // Requested features are unsupported on the current platform.
+  debugPrint('Unsupported: ${error.unsupportedFeatures}');
+}
+```
+
+## Errors
+
+- `FlutterEmailSenderNotAvailableException`: no email composer is currently available.
+- `FlutterEmailSenderUnsupportedFeatureException`: requested fields are unsupported on the current platform.
+- `FlutterEmailSenderPlatformException`: unexpected platform/plugin error.
+
+## Migrating From 9.x To 10.0.0
+
+- `send` and `getCapabilities` now throw typed Dart exceptions for expected failures.
+- Apps that previously caught `PlatformException(code: 'not_available')` should catch `FlutterEmailSenderNotAvailableException` instead.
+- Apps that previously caught `PlatformException(code: 'unsupported')` should catch `FlutterEmailSenderUnsupportedFeatureException` instead.
+- Use `getCapabilities()` and `EmailCapabilities.canSend` to adapt UI before calling `send`.
+
+## Local Development
+
+When consuming this plugin from a local path before all federated packages are published, point to `packages/flutter_email_sender` and override the internal federated packages in `pubspec_overrides.yaml`.
 
 ## Android Setup
 

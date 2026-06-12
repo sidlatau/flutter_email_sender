@@ -26,7 +26,13 @@ flutter:
       android:
         package: com.sidlatau.flutteremailsender
         pluginClass: FlutterEmailSenderPlugin
+        dartPluginClass: MethodChannelFlutterEmailSender
+        dartFileName: src/method_channel_flutter_email_sender.dart
       ios:
         pluginClass: FlutterEmailSenderPlugin
+        dartPluginClass: MethodChannelFlutterEmailSender
+        dartFileName: src/method_channel_flutter_email_sender.dart
       macos:
         pluginClass: FlutterEmailSenderPlugin
+        dartPluginClass: MethodChannelFlutterEmailSender
+        dartFileName: src/method_channel_flutter_email_sender.dart

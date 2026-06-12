@@ -3,6 +3,34 @@ import 'package:flutter_email_sender_platform_interface/flutter_email_sender_pla
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('validateEmail throws not_available when email cannot be sent', () {
+    const capabilities = EmailCapabilities(
+      canSend: false,
+      supportsCc: true,
+      supportsBcc: true,
+      supportsSubject: true,
+      supportsPlainTextBody: true,
+      supportsHtmlBody: true,
+      supportsAttachments: true,
+    );
+
+    expect(
+      () => capabilities.validateEmail(
+        const Email(recipients: <String>['to@example.com']),
+        platformName: 'ios',
+      ),
+      throwsA(
+        isA<PlatformException>()
+            .having((error) => error.code, 'code', 'not_available')
+            .having(
+              (error) => error.message,
+              'message',
+              'Email composer is unavailable on ios.',
+            ),
+      ),
+    );
+  });
+
   test('validateEmail throws unsupported fields', () {
     const capabilities = EmailCapabilities(
       canSend: true,
