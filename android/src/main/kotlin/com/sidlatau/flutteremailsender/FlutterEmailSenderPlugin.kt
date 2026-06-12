@@ -138,6 +138,8 @@ class FlutterEmailSenderPlugin
                 intent.action = Intent.ACTION_SEND_MULTIPLE
                 intent.type = "text/plain";
                 intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(attachmentUris))
+                intent.data = Uri.parse("mailto:")
+                intent.selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
             }
         }
 
