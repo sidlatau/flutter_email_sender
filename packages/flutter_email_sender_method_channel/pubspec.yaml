@@ -1,0 +1,32 @@
+name: flutter_email_sender_method_channel
+description: Method channel platform implementation of flutter_email_sender.
+version: 1.0.0
+homepage: https://github.com/sidlatau/flutter_email_sender
+issue_tracker: https://github.com/sidlatau/flutter_email_sender/issues
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_email_sender_platform_interface: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    implements: flutter_email_sender
+    platforms:
+      android:
+        package: com.sidlatau.flutteremailsender
+        pluginClass: FlutterEmailSenderPlugin
+      ios:
+        pluginClass: FlutterEmailSenderPlugin
+      macos:
+        pluginClass: FlutterEmailSenderPlugin

@@ -1,0 +1,34 @@
+name: flutter_email_sender
+description: Allows send emails from flutter using native platform functionality.
+version: 10.0.0
+homepage: https://github.com/sidlatau/flutter_email_sender
+issue_tracker: https://github.com/sidlatau/flutter_email_sender/issues
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_email_sender_method_channel: ^1.0.0
+  flutter_email_sender_platform_interface: ^1.0.0
+  flutter_email_sender_web: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        default_package: flutter_email_sender_method_channel
+      ios:
+        default_package: flutter_email_sender_method_channel
+      macos:
+        default_package: flutter_email_sender_method_channel
+      web:
+        default_package: flutter_email_sender_web
