@@ -72,7 +72,29 @@ try {
 
 ## Local Development
 
-When consuming this plugin from a local path before all federated packages are published, point to `packages/flutter_email_sender` and override the internal federated packages in `pubspec_overrides.yaml`.
+When consuming this plugin from a local checkout before all federated packages are published, point your app dependency at `packages/flutter_email_sender` and override the internal federated packages in `pubspec_overrides.yaml`.
+
+Example app `pubspec.yaml`:
+
+```yaml
+dependencies:
+  flutter_email_sender:
+    path: ../flutter_email_sender/packages/flutter_email_sender
+```
+
+Example app `pubspec_overrides.yaml`:
+
+```yaml
+dependency_overrides:
+  flutter_email_sender_method_channel:
+    path: ../flutter_email_sender/packages/flutter_email_sender_method_channel
+  flutter_email_sender_platform_interface:
+    path: ../flutter_email_sender/packages/flutter_email_sender_platform_interface
+  flutter_email_sender_web:
+    path: ../flutter_email_sender/packages/flutter_email_sender_web
+```
+
+Adjust the relative paths to match where your app and local plugin checkout live on disk.
 
 ## Android Setup
 
