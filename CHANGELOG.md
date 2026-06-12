@@ -1,59 +1,11 @@
-## 10.0.0
+## Workspace
 
-- BREAKING: updates minimum supported versions to Flutter 3.44 / Dart 3.12.
-- Android: migrates the plugin to Flutter's built-in Kotlin support for plugin authors.
+Release notes for the published plugin packages now live with each package:
 
-## 9.0.0
-
-- Add macos support with Swift Package Manager.
-
-## 8.0.0
-
-- Updated kotlin version to 2.2 
-- Updated gradle version to 8.13.0
-- Updated android compile SDK to 36
-- Updated example app dependencies
-
-## 7.0.0
-
-- Add Swift Package Manager support.
-- Remove Objective-C files.
-
-## 6.0.3
-
-- Added iOS privacy manifest
-
-## 6.0.2
-
-- Add Java 1.8 compile options and Kotlin JVM target in build.gradle (#99)
-
-## 6.0.1
-
-- Use SEND_TO action for Android (fixes #91)
-
-## 6.0.0
-
-- Updated android dependencies, using gradle 8.0
-
-## 5.2.0
-
-- Updated android references: updated compile and target SDK to 33
-- Fixed attachment adding problem in Android 13 (#87)
-- Support Objective-C project with Podfile no use_frameworks - thanks @fachrifaul
-
-## 5.1.0
-
-- Updated android references: replaced references for jcenter, updated compile and target SDK to 31 (#82)
-- Fixed issue for attaching file from application documents directory (#21, #35, #66)
-- Updated example app (#52)
-
-## 5.0.2
-
-- Fixed problem when future never completes (#73) - thanks @zuzi-m
-
-## 5.0.1
-
-- Fixed Android v2 embedding problem - thanks @sergey-triputsco
+- `packages/flutter_email_sender/CHANGELOG.md`
+- `packages/flutter_email_sender_platform_interface/CHANGELOG.md`
+- `packages/flutter_email_sender_method_channel/CHANGELOG.md`
+- `packages/flutter_email_sender_web/CHANGELOG.md`
 
 ## 5.0.0
 
