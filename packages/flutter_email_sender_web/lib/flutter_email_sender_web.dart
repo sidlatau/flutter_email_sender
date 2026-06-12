@@ -9,7 +9,7 @@ class FlutterEmailSenderWeb extends FlutterEmailSenderPlatform {
   }
 
   static const EmailCapabilities _capabilities = EmailCapabilities(
-    isAvailable: true,
+    canSend: true,
     supportsCc: true,
     supportsBcc: true,
     supportsSubject: true,

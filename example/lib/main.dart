@@ -86,7 +86,12 @@ class _EmailSenderState extends State<EmailSender> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Plugin example app'),
-        actions: <Widget>[IconButton(onPressed: send, icon: Icon(Icons.send))],
+        actions: <Widget>[
+          IconButton(
+            onPressed: capabilities?.canSend == true ? send : null,
+            icon: Icon(Icons.send),
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -97,6 +102,17 @@ class _EmailSenderState extends State<EmailSender> {
                 // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  if (!capabilities!.canSend)
+                    MaterialBanner(
+                      content: Text(
+                        'Email composer is unavailable on this device or simulator.',
+                      ),
+                      leading: Icon(Icons.warning_amber_rounded),
+                      actions: <Widget>[SizedBox.shrink()],
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.errorContainer,
+                    ),
                   Padding(
                     padding: EdgeInsets.all(8.0),
                     child: TextField(

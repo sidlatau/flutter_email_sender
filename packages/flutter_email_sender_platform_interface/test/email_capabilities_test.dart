@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('validateEmail throws unsupported fields', () {
     const capabilities = EmailCapabilities(
-      isAvailable: true,
+      canSend: true,
       supportsCc: false,
       supportsBcc: false,
       supportsSubject: true,

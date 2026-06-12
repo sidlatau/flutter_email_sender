@@ -15,6 +15,9 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
           log.add(call);
+          if (call.method == 'getCapabilities') {
+            return <String, bool>{'canSend': true};
+          }
           return null;
         });
   });
@@ -29,8 +32,18 @@ void main() {
       const Email(subject: 'Hi', recipients: <String>['to@example.com']),
     );
 
+    expect(log, hasLength(2));
+    expect(log.first.method, 'getCapabilities');
+    expect(log.last.method, 'send');
+    expect((log.last.arguments as Map<Object?, Object?>)['subject'], 'Hi');
+  });
+
+  test('getCapabilities reads runtime canSend from native code', () async {
+    final capabilities = await plugin.getCapabilities();
+
     expect(log, hasLength(1));
-    expect(log.single.method, 'send');
-    expect((log.single.arguments as Map<Object?, Object?>)['subject'], 'Hi');
+    expect(log.single.method, 'getCapabilities');
+    expect(capabilities.canSend, isTrue);
+    expect(capabilities.supportsAttachments, isTrue);
   });
 }

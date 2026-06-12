@@ -10,7 +10,7 @@ class _FakeFlutterEmailSenderPlatform extends FlutterEmailSenderPlatform
   @override
   Future<EmailCapabilities> getCapabilities() async {
     return const EmailCapabilities(
-      isAvailable: true,
+      canSend: true,
       supportsCc: true,
       supportsBcc: true,
       supportsSubject: true,
@@ -54,7 +54,7 @@ void main() {
   test('getCapabilities delegates to the platform implementation', () async {
     final capabilities = await FlutterEmailSender.getCapabilities();
 
-    expect(capabilities.isAvailable, isTrue);
+    expect(capabilities.canSend, isTrue);
     expect(capabilities.supportsAttachments, isFalse);
   });
 }

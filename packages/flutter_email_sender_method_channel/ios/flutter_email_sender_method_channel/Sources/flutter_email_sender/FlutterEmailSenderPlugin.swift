@@ -13,6 +13,8 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case "getCapabilities":
+            result(["canSend": MFMailComposeViewController.canSendMail()])
         case "send":
             sendMail(call, result: result)
         default:

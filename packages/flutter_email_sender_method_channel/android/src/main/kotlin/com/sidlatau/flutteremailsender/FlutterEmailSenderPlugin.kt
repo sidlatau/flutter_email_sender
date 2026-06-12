@@ -24,6 +24,7 @@ private const val CC = "cc"
 private const val BCC = "bcc"
 private const val ATTACHMENT_PATHS = "attachment_paths"
 private const val IS_HTML = "is_html"
+private const val CAN_SEND = "canSend"
 private const val REQUEST_CODE_SEND = 607
 
 class FlutterEmailSenderPlugin :
@@ -62,12 +63,22 @@ class FlutterEmailSenderPlugin :
     private var channelResult: Result? = null
 
     override fun onMethodCall(call: MethodCall, result: Result) {
-        if (call.method == "send") {
-            channelResult = result
-            sendEmail(call, result)
-        } else {
-            result.notImplemented()
+        when (call.method) {
+            "getCapabilities" -> result.success(mapOf(CAN_SEND to canSendMail()))
+            "send" -> {
+                channelResult = result
+                sendEmail(call, result)
+            }
+            else -> {
+                result.notImplemented()
+            }
         }
+    }
+
+    private fun canSendMail(): Boolean {
+        val currentActivity = activity ?: return false
+        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+        return currentActivity.packageManager.resolveActivity(intent, 0) != null
     }
 
     private fun sendEmail(options: MethodCall, callback: Result) {

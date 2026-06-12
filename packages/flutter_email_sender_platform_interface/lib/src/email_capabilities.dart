@@ -4,7 +4,7 @@ import 'email.dart';
 
 class EmailCapabilities {
   const EmailCapabilities({
-    required this.isAvailable,
+    required this.canSend,
     required this.supportsCc,
     required this.supportsBcc,
     required this.supportsSubject,
@@ -14,7 +14,7 @@ class EmailCapabilities {
   });
 
   const EmailCapabilities.none()
-    : isAvailable = false,
+    : canSend = false,
       supportsCc = false,
       supportsBcc = false,
       supportsSubject = false,
@@ -22,7 +22,7 @@ class EmailCapabilities {
       supportsHtmlBody = false,
       supportsAttachments = false;
 
-  final bool isAvailable;
+  final bool canSend;
   final bool supportsCc;
   final bool supportsBcc;
   final bool supportsSubject;
@@ -59,7 +59,7 @@ class EmailCapabilities {
   }
 
   void validateEmail(Email email, {required String platformName}) {
-    if (!isAvailable) {
+    if (!canSend) {
       throw PlatformException(
         code: 'unsupported',
         message: 'flutter_email_sender is not supported on $platformName.',
