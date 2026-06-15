@@ -23,6 +23,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+workspace:
+  - example
+
 flutter:
   plugin:
     platforms:

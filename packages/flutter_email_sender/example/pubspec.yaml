@@ -1,5 +1,6 @@
 name: flutter_email_sender_example
 description: Demonstrates how to use the flutter_email_sender plugin.
+publish_to: none
 
 version: 1.0.0
 
@@ -14,7 +15,8 @@ dependencies:
     sdk: flutter
 
   file_selector: ^1.0.3
-  flutter_email_sender: ^10.0.0
+  flutter_email_sender:
+    path: ..
   image_picker: ^1.2.0
 
 dev_dependencies:

@@ -5,14 +5,25 @@ import 'package:flutter_email_sender_platform_interface/flutter_email_sender_pla
 
 import 'src/exceptions.dart';
 
+/// Flutter API for composing emails with the platform's native mail UI.
+///
+/// This library exports the [Email] request model, [EmailCapabilities] for
+/// feature detection, and typed exceptions for expected failures.
 export 'package:flutter_email_sender_platform_interface/flutter_email_sender_platform_interface.dart'
     show Email, EmailCapabilities;
 export 'src/exceptions.dart';
 
+/// Entry point for sending email through the current platform implementation.
 class FlutterEmailSender {
   static FlutterEmailSenderPlatform get _platform =>
       FlutterEmailSenderPlatform.instance;
 
+  /// Opens the platform email composer prefilled with [mail].
+  ///
+  /// Throws [FlutterEmailSenderNotAvailableException] when no email composer is
+  /// available, [FlutterEmailSenderUnsupportedFeatureException] when the
+  /// current platform cannot handle some requested fields, or
+  /// [FlutterEmailSenderPlatformException] for other plugin errors.
   static Future<void> send(Email mail) async {
     try {
       await _platform.send(mail);
@@ -21,6 +32,7 @@ class FlutterEmailSender {
     }
   }
 
+  /// Returns the current platform's email support and feature availability.
   static Future<EmailCapabilities> getCapabilities() async {
     try {
       return await _platform.getCapabilities();
