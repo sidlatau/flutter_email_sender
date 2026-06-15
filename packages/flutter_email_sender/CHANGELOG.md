@@ -1,3 +1,8 @@
+## 10.0.1
+
+- Improve API documentation coverage for pub points.
+- Move the example app into `packages/flutter_email_sender/example` so pub.dev recognizes it.
+
 ## 10.0.0
 
 - BREAKING: updates minimum supported versions to Flutter 3.44 / Dart 3.12.
