@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
 Allows send emails from flutter using native platform functionality.
                        DESC
   s.homepage         = 'https://github.com/sidlatau/flutter_email_sender'
-  s.license          = { :file => '../../flutter_email_sender/LICENSE' }
+  s.license          = { :file => '../LICENSE' }
   s.author           = { 'sidlatau' => 'sidlatau@gmail.com' }
   s.source           = { :path => '.' }
   s.module_name      = 'flutter_email_sender_method_channel'
