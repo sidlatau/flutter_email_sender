@@ -1,6 +1,6 @@
 name: flutter_email_sender_method_channel
 description: Method channel platform implementation of flutter_email_sender.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/sidlatau/flutter_email_sender
 repository: https://github.com/sidlatau/flutter_email_sender/tree/master/packages/flutter_email_sender_method_channel
 issue_tracker: https://github.com/sidlatau/flutter_email_sender/issues
