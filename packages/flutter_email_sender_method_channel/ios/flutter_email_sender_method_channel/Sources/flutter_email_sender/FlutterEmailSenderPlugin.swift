@@ -3,10 +3,16 @@ import MessageUI
 import UIKit
 
 public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
+    private let registrar: FlutterPluginRegistrar
+
+    init(registrar: FlutterPluginRegistrar) {
+        self.registrar = registrar
+    }
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "flutter_email_sender", binaryMessenger: registrar.messenger())
 
-        let instance = FlutterEmailSenderPlugin()
+        let instance = FlutterEmailSenderPlugin(registrar: registrar)
 
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
@@ -25,9 +31,12 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     private func sendMail(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let email = parseArgs(call, result: result) else { return }
 
-        guard let viewController = UIApplication.shared.keyWindow?.rootViewController else {
+        guard var viewController = registrar.viewController else {
             result(FlutterError(code: "error", message: "Unable to get view controller!", details: nil))
             return
+        }
+        while let presented = viewController.presentedViewController {
+            viewController = presented
         }
 
         if MFMailComposeViewController.canSendMail() {
