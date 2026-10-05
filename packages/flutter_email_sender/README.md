@@ -1,12 +1,12 @@
 # flutter_email_sender
 
-Allows send emails from flutter using native platform functionality.
+Allows sending emails from Flutter using native platform functionality.
 
-In android it opens default mail app via intent.
+On Android it opens an email app via an intent. When several email apps are installed, the user picks one from a chooser that lists only email apps.
 
-In iOS `MFMailComposeViewController` is used to compose an email.
+On iOS `MFMailComposeViewController` is used to compose an email. It requires an account set up in Apple Mail; other mail apps such as Gmail are not used.
 
-In macOS `NSSharingService` with `.composeEmail` is used to compose an email.
+On macOS `NSSharingService` with `.composeEmail` is used to compose an email.
 The plugin exposes platform capabilities so apps can adapt their UI before sending.
 
 The public API throws typed Dart exceptions rather than exposing raw `PlatformException`s for expected failures.
@@ -21,6 +21,10 @@ The public API throws typed Dart exceptions rather than exposing raw `PlatformEx
 | Web | Yes | Yes | No | No |
 
 Web support uses `mailto:` and depends on browser and configured mail client behavior.
+
+On Android, HTML support depends on the email app; Gmail shows the body as plain text.
+
+Attachments can be any file the app can read. On Android they are copied into the app's cache directory before being shared, so the original file can be deleted once `send` returns.
 
 # Example
 
@@ -98,15 +102,4 @@ Adjust the relative paths to match where your app and local plugin checkout live
 
 ## Android Setup
 
-With Android 11, package visibility is introduced that alters the ability to query installed applications and packages on a user's device. To enable your application to get visibility into the packages you will need to add a list of queries into your `AndroidManifest.xml`.
-
-```xml
-<manifest package="com.mycompany.myapp">
-  <queries>
-    <intent>
-      <action android:name="android.intent.action.SENDTO" />
-      <data android:scheme="mailto" />
-    </intent>
-  </queries>
-</manifest>
-```
+No `AndroidManifest.xml` changes are needed: the plugin declares the package visibility `<queries>` it uses. Apps that added a `SENDTO` `mailto` query for earlier versions can remove it.
