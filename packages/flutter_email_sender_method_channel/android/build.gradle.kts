@@ -31,10 +31,17 @@ android {
         getByName("main") {
             java.srcDirs("src/main/kotlin")
         }
+        getByName("test") {
+            java.srcDirs("src/test/kotlin")
+        }
     }
 
     defaultConfig {
         minSdk = 24
+    }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
     }
 
     lint {
@@ -52,4 +59,7 @@ project.extensions.configure(
 
 dependencies {
     implementation("androidx.core:core:1.16.0")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.17")
 }
