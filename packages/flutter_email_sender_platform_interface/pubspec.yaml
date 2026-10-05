@@ -1,6 +1,6 @@
 name: flutter_email_sender_platform_interface
 description: A common platform interface for the flutter_email_sender plugin.
-version: 1.0.0
+version: 1.1.0
 homepage: https://github.com/sidlatau/flutter_email_sender
 repository: https://github.com/sidlatau/flutter_email_sender/tree/master/packages/flutter_email_sender_platform_interface
 issue_tracker: https://github.com/sidlatau/flutter_email_sender/issues
