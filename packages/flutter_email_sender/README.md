@@ -105,6 +105,27 @@ Files can be anywhere the app can read; a file that cannot be read makes `send` 
 - `FlutterEmailSenderUnsupportedFeatureException`: requested fields are unsupported on the current platform.
 - `FlutterEmailSenderPlatformException`: unexpected platform/plugin error, or an email that iOS failed to send (code `send_failed`).
 
+## Migrating From 10.x To 11.0.0
+
+- `send` now returns an `EmailSendResult`. Existing `await FlutterEmailSender.send(email)` calls keep compiling.
+- iOS: `send` completes when the user leaves the composer, not when it opens. Code that ran right after `await send(...)`, such as an "Email sent" message, now runs later; use the result to tell a sent email from a discarded one.
+- iOS without an Apple Mail account (and macOS without a native composer): `canSend` is now `true` and `send` opens a `mailto:` link instead of throwing `FlutterEmailSenderNotAvailableException`. Emails with attachments or an HTML body throw `FlutterEmailSenderUnsupportedFeatureException` instead. If you caught `FlutterEmailSenderNotAvailableException` to offer your own fallback, such as a share sheet, also catch `FlutterEmailSenderUnsupportedFeatureException`, or check `supportsAttachments` and `supportsHtmlBody` from `getCapabilities()` before sending:
+
+  ```dart
+  try {
+    await FlutterEmailSender.send(email);
+  } on FlutterEmailSenderNotAvailableException {
+    // No mail app can be opened.
+  } on FlutterEmailSenderUnsupportedFeatureException {
+    // For example attachments while iOS falls back to mailto:.
+  }
+  ```
+
+- An attachment file that cannot be read now makes `send` throw `FlutterEmailSenderPlatformException` instead of being left out.
+- Android: if your app uses AppCompat classes, declare `androidx.appcompat:appcompat` in your app's `build.gradle`; the plugin no longer brings it in.
+- Android: the `SENDTO` `mailto` query that earlier versions asked you to add to `AndroidManifest.xml` can be removed.
+- Tests: if you replace `FlutterEmailSenderPlatform` with a test double, stub `sendWithResult`; `FlutterEmailSender.send` calls it instead of `send`.
+
 ## Migrating From 9.x To 10.0.0
 
 - `send` and `getCapabilities` now throw typed Dart exceptions for expected failures.

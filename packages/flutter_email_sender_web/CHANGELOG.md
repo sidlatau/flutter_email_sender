@@ -1,4 +1,4 @@
-## Unreleased
+## 1.0.1
 
 - Build the `mailto:` link with `Email.toMailtoUri()` from the platform interface; no behavior change.
 - Requires `flutter_email_sender_platform_interface` 1.1.0.
