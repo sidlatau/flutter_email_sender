@@ -21,7 +21,11 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "getCapabilities":
-            result(["canSend": MFMailComposeViewController.canSendMail()])
+            if MFMailComposeViewController.canSendMail() {
+                result(["canSend": true, "composer": "native"])
+            } else {
+                result(["canSend": canOpenMailto(), "composer": "mailto"])
+            }
         case "send":
             sendMail(call, result: result)
         default:
@@ -32,6 +36,14 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     private func sendMail(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let email = parseArgs(call, result: result) else { return }
 
+        if MFMailComposeViewController.canSendMail() {
+            presentComposer(email, result: result)
+        } else {
+            openMailto(email, result: result)
+        }
+    }
+
+    private func presentComposer(_ email: Email, result: @escaping FlutterResult) {
         guard var viewController = registrar.viewController else {
             result(FlutterError(code: "error", message: "Unable to get view controller!", details: nil))
             return
@@ -40,42 +52,60 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             viewController = presented
         }
 
-        if MFMailComposeViewController.canSendMail() {
-            let mailComposerVC = MFMailComposeViewController()
-            let session = MailComposeSession(result: result) { [weak self] session in
-                self?.sessions.remove(session)
-            }
-            sessions.insert(session)
-            mailComposerVC.mailComposeDelegate = session
-            mailComposerVC.presentationController?.delegate = session
+        let mailComposerVC = MFMailComposeViewController()
+        let session = MailComposeSession(result: result) { [weak self] session in
+            self?.sessions.remove(session)
+        }
+        sessions.insert(session)
+        mailComposerVC.mailComposeDelegate = session
+        mailComposerVC.presentationController?.delegate = session
 
-            mailComposerVC.setToRecipients(email.recipients)
-            if let subject = email.subject {
-                mailComposerVC.setSubject(subject)
-            }
-            mailComposerVC.setCcRecipients(email.cc)
-            mailComposerVC.setBccRecipients(email.bcc)
+        mailComposerVC.setToRecipients(email.recipients)
+        if let subject = email.subject {
+            mailComposerVC.setSubject(subject)
+        }
+        mailComposerVC.setCcRecipients(email.cc)
+        mailComposerVC.setBccRecipients(email.bcc)
 
-            if let body = email.body {
-                mailComposerVC.setMessageBody(body, isHTML: email.isHTML ?? false)
-            }
+        if let body = email.body {
+            mailComposerVC.setMessageBody(body, isHTML: email.isHTML ?? false)
+        }
 
-            if let attachmentPaths = email.attachmentPaths {
-                for path in attachmentPaths {
-                    if let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)) {
-                        mailComposerVC.addAttachmentData(
-                            fileData,
-                            mimeType: "application/octet-stream",
-                            fileName: (path as NSString).lastPathComponent
-                        )
-                    }
+        if let attachmentPaths = email.attachmentPaths {
+            for path in attachmentPaths {
+                if let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)) {
+                    mailComposerVC.addAttachmentData(
+                        fileData,
+                        mimeType: "application/octet-stream",
+                        fileName: (path as NSString).lastPathComponent
+                    )
                 }
             }
-
-            viewController.present(mailComposerVC, animated: true)
-        } else {
-            result(FlutterError(code: "not_available", message: "No email clients found!", details: nil))
         }
+
+        viewController.present(mailComposerVC, animated: true)
+    }
+
+    private func openMailto(_ email: Email, result: @escaping FlutterResult) {
+        if !(email.attachmentPaths ?? []).isEmpty {
+            result(FlutterError(code: "unsupported", message: "The current platform does not support: attachments.", details: nil))
+            return
+        }
+        guard let mailtoUri = email.mailtoUri, let url = URL(string: mailtoUri) else {
+            result(FlutterError(code: "not_available", message: "Could not open the mailto: link.", details: nil))
+            return
+        }
+
+        UIApplication.shared.open(url) { opened in
+            result(opened ? nil : FlutterError(code: "not_available", message: "Could not open the mailto: link.", details: nil))
+        }
+    }
+
+    private func canOpenMailto() -> Bool {
+        // canOpenURL only answers for schemes the app lists in LSApplicationQueriesSchemes.
+        let querySchemes = Bundle.main.object(forInfoDictionaryKey: "LSApplicationQueriesSchemes") as? [String] ?? []
+        guard querySchemes.contains("mailto"), let url = URL(string: "mailto:") else { return true }
+        return UIApplication.shared.canOpenURL(url)
     }
 
     private func parseArgs(_ call: FlutterMethodCall, result: @escaping FlutterResult) -> Email? {
@@ -91,7 +121,8 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             body: args[Email.BODY] as? String,
             attachmentPaths: args[Email.ATTACHMENT_PATHS] as? [String],
             subject: args[Email.SUBJECT] as? String,
-            isHTML: args[Email.IS_HTML] as? Bool
+            isHTML: args[Email.IS_HTML] as? Bool,
+            mailtoUri: args[Email.MAILTO_URI] as? String
         )
     }
 }
@@ -146,6 +177,7 @@ struct Email {
     static let BCC = "bcc"
     static let ATTACHMENT_PATHS = "attachment_paths"
     static let IS_HTML = "is_html"
+    static let MAILTO_URI = "mailto_uri"
 
     let recipients: [String]?
     let cc: [String]?
@@ -154,4 +186,5 @@ struct Email {
     let attachmentPaths: [String]?
     let subject: String?
     let isHTML: Bool?
+    let mailtoUri: String?
 }

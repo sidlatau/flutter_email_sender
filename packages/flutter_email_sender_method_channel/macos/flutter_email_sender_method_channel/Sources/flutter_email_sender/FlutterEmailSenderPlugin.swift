@@ -11,7 +11,12 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "getCapabilities":
-            result(["canSend": NSSharingService(named: .composeEmail) != nil])
+            if NSSharingService(named: .composeEmail) != nil {
+                result(["canSend": true, "composer": "native"])
+            } else {
+                let mailApp = URL(string: "mailto:").flatMap { NSWorkspace.shared.urlForApplication(toOpen: $0) }
+                result(["canSend": mailApp != nil, "composer": "mailto"])
+            }
         case "send":
             sendMail(call, result: result)
         default:
@@ -22,7 +27,7 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     private func sendMail(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let email = parseArgs(call, result: result) else { return }
         guard let service = NSSharingService(named: .composeEmail) else {
-            result(FlutterError(code: "not_available", message: "No email clients found!", details: nil))
+            openMailto(email, result: result)
             return
         }
 
@@ -53,6 +58,18 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
+    private func openMailto(_ email: Email, result: @escaping FlutterResult) {
+        if !(email.attachmentPaths ?? []).isEmpty {
+            result(FlutterError(code: "unsupported", message: "The current platform does not support: attachments.", details: nil))
+            return
+        }
+        guard let mailtoUri = email.mailtoUri, let url = URL(string: mailtoUri), NSWorkspace.shared.open(url) else {
+            result(FlutterError(code: "not_available", message: "Could not open the mailto: link.", details: nil))
+            return
+        }
+        result(nil)
+    }
+
     private func parseArgs(_ call: FlutterMethodCall, result: @escaping FlutterResult) -> Email? {
         guard let args = call.arguments as? [String: Any?] else {
             result(FlutterError(code: "error", message: "args are not map!", details: nil))
@@ -63,7 +80,8 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             recipients: args[Email.recipients] as? [String],
             body: args[Email.body] as? String,
             attachmentPaths: args[Email.attachmentPaths] as? [String],
-            subject: args[Email.subject] as? String
+            subject: args[Email.subject] as? String,
+            mailtoUri: args[Email.mailtoUri] as? String
         )
     }
 }
@@ -73,9 +91,11 @@ private struct Email {
     static let body = "body"
     static let recipients = "recipients"
     static let attachmentPaths = "attachment_paths"
+    static let mailtoUri = "mailto_uri"
 
     let recipients: [String]?
     let body: String?
     let attachmentPaths: [String]?
     let subject: String?
+    let mailtoUri: String?
 }

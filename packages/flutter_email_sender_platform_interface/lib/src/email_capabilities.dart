@@ -25,6 +25,15 @@ class EmailCapabilities {
       supportsHtmlBody = false,
       supportsAttachments = false;
 
+  /// Creates the capability set of a composer opened through a `mailto:` URI.
+  const EmailCapabilities.mailto({required this.canSend})
+    : supportsCc = true,
+      supportsBcc = true,
+      supportsSubject = true,
+      supportsPlainTextBody = true,
+      supportsHtmlBody = false,
+      supportsAttachments = false;
+
   /// Whether an email composer is currently available to the user.
   final bool canSend;
 

@@ -41,6 +41,31 @@ class Email {
   /// Whether a non-empty body was provided.
   bool get hasBody => body.isNotEmpty;
 
+  /// A `mailto:` URI with the recipients, subject and body.
+  ///
+  /// Attachments and HTML formatting cannot be expressed in a `mailto:` URI.
+  Uri toMailtoUri() {
+    final queryParameters = <String, String>{
+      if (hasSubject) 'subject': subject,
+      if (cc.isNotEmpty) 'cc': cc.join(','),
+      if (bcc.isNotEmpty) 'bcc': bcc.join(','),
+      if (hasBody) 'body': body,
+    };
+
+    return Uri(
+      scheme: 'mailto',
+      path: recipients.join(','),
+      query: queryParameters.isEmpty
+          ? null
+          : queryParameters.entries
+                .map(
+                  (entry) =>
+                      '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}',
+                )
+                .join('&'),
+    );
+  }
+
   /// Converts this request into the platform channel payload.
   Map<String, dynamic> toJson() {
     return <String, dynamic>{

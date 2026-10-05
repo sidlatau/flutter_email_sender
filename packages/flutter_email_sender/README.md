@@ -4,9 +4,12 @@ Allows sending emails from Flutter using native platform functionality.
 
 On Android it opens an email app via an intent. When several email apps are installed, the user picks one from a chooser that lists only email apps.
 
-On iOS `MFMailComposeViewController` is used to compose an email. It requires an account set up in Apple Mail; other mail apps such as Gmail are not used.
+On iOS `MFMailComposeViewController` is used to compose an email when an account is set up in Apple Mail.
 
 On macOS `NSSharingService` with `.composeEmail` is used to compose an email.
+
+When the native composer is unavailable on iOS or macOS, for example on an iPhone without an Apple Mail account, the plugin opens a `mailto:` link in the default mail app (such as Gmail) instead. Attachments and HTML bodies cannot be sent that way, and `getCapabilities()` reports them as unsupported.
+
 The plugin exposes platform capabilities so apps can adapt their UI before sending.
 
 The public API throws typed Dart exceptions rather than exposing raw `PlatformException`s for expected failures.
@@ -17,7 +20,9 @@ The public API throws typed Dart exceptions rather than exposing raw `PlatformEx
 | --- | --- | --- | --- | --- |
 | Android | Yes | Yes | Yes | Yes |
 | iOS | Yes | Yes | Yes | Yes |
+| iOS, `mailto:` fallback | Yes | Yes | No | No |
 | macOS | No | No | No | Yes |
+| macOS, `mailto:` fallback | Yes | Yes | No | No |
 | Web | Yes | Yes | No | No |
 
 Web support uses `mailto:` and depends on browser and configured mail client behavior.
@@ -116,3 +121,16 @@ Adjust the relative paths to match where your app and local plugin checkout live
 ## Android Setup
 
 No `AndroidManifest.xml` changes are needed: the plugin declares the package visibility `<queries>` it uses. Apps that added a `SENDTO` `mailto` query for earlier versions can remove it.
+
+## iOS Setup
+
+No setup is needed. Optionally, list `mailto` under `LSApplicationQueriesSchemes` in `ios/Runner/Info.plist` so that `canSend` is accurate when Apple Mail has no account:
+
+```xml
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>mailto</string>
+</array>
+```
+
+Without it, iOS does not let the plugin check whether a mail app can open `mailto:` links, so `canSend` is reported as `true` and `send` throws `FlutterEmailSenderNotAvailableException` when none can.

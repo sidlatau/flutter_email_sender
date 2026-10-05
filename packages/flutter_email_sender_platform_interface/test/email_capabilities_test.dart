@@ -61,4 +61,22 @@ void main() {
       ),
     );
   });
+
+  test('mailto capabilities reject attachments and HTML only', () {
+    const capabilities = EmailCapabilities.mailto(canSend: true);
+
+    expect(
+      capabilities.unsupportedFeaturesFor(
+        const Email(
+          cc: <String>['cc@example.com'],
+          bcc: <String>['bcc@example.com'],
+          subject: 'subject',
+          body: '<b>Hello</b>',
+          isHTML: true,
+          attachmentPaths: <String>['/tmp/file.txt'],
+        ),
+      ),
+      <String>['attachments', 'HTML body'],
+    );
+  });
 }

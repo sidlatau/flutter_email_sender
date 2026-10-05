@@ -39,7 +39,10 @@ class MethodChannelFlutterEmailSender extends FlutterEmailSenderPlatform {
   Future<EmailSendResult> sendWithResult(Email email) async {
     final capabilities = await getCapabilities();
     capabilities.validateEmail(email, platformName: defaultTargetPlatform.name);
-    final result = await _channel.invokeMethod<String>('send', email.toJson());
+    final result = await _channel.invokeMethod<String>('send', {
+      ...email.toJson(),
+      'mailto_uri': email.toMailtoUri().toString(),
+    });
     return EmailSendResult.values.asNameMap()[result] ??
         EmailSendResult.unknown;
   }
@@ -55,9 +58,15 @@ class MethodChannelFlutterEmailSender extends FlutterEmailSenderPlatform {
   }
 
   Future<EmailCapabilities> _nativeCapabilities() async {
-    final capabilities = await _channel.invokeMapMethod<String, bool>(
+    final capabilities = await _channel.invokeMapMethod<String, Object?>(
       _getCapabilitiesMethod,
     );
+
+    if (capabilities?['composer'] == 'mailto') {
+      return EmailCapabilities.mailto(
+        canSend: capabilities?['canSend'] as bool? ?? false,
+      );
+    }
 
     final defaults = switch (defaultTargetPlatform) {
       TargetPlatform.android || TargetPlatform.iOS => _mobileCapabilities,
@@ -66,7 +75,7 @@ class MethodChannelFlutterEmailSender extends FlutterEmailSenderPlatform {
     };
 
     return EmailCapabilities(
-      canSend: capabilities?['canSend'] ?? defaults.canSend,
+      canSend: capabilities?['canSend'] as bool? ?? defaults.canSend,
       supportsCc: defaults.supportsCc,
       supportsBcc: defaults.supportsBcc,
       supportsSubject: defaults.supportsSubject,

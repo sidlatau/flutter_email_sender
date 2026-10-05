@@ -10,15 +10,20 @@ void main() {
   final log = <MethodCall>[];
   final plugin = MethodChannelFlutterEmailSender();
   String? nativeSendResult;
+  Map<String, Object?> nativeCapabilities = <String, Object?>{};
 
   setUp(() {
     log.clear();
     nativeSendResult = null;
+    nativeCapabilities = <String, Object?>{
+      'canSend': true,
+      'composer': 'native',
+    };
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
           log.add(call);
           if (call.method == 'getCapabilities') {
-            return <String, bool>{'canSend': true};
+            return nativeCapabilities;
           }
           return nativeSendResult;
         });
@@ -38,6 +43,45 @@ void main() {
     expect(log.first.method, 'getCapabilities');
     expect(log.last.method, 'send');
     expect((log.last.arguments as Map<Object?, Object?>)['subject'], 'Hi');
+    expect(
+      (log.last.arguments as Map<Object?, Object?>)['mailto_uri'],
+      'mailto:to@example.com?subject=Hi',
+    );
+  });
+
+  test('getCapabilities describes the mailto fallback', () async {
+    nativeCapabilities = <String, Object?>{
+      'canSend': true,
+      'composer': 'mailto',
+    };
+
+    final capabilities = await plugin.getCapabilities();
+
+    expect(capabilities.canSend, isTrue);
+    expect(capabilities.supportsCc, isTrue);
+    expect(capabilities.supportsAttachments, isFalse);
+    expect(capabilities.supportsHtmlBody, isFalse);
+  });
+
+  test('send rejects attachments before falling back to mailto', () async {
+    nativeCapabilities = <String, Object?>{
+      'canSend': true,
+      'composer': 'mailto',
+    };
+
+    await expectLater(
+      () => plugin.send(
+        const Email(attachmentPaths: <String>['/tmp/report.pdf']),
+      ),
+      throwsA(
+        isA<PlatformException>().having(
+          (error) => error.code,
+          'code',
+          'unsupported',
+        ),
+      ),
+    );
+    expect(log.map((call) => call.method), isNot(contains('send')));
   });
 
   test('sendWithResult maps the native result', () async {
