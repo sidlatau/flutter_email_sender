@@ -1,4 +1,4 @@
-## Unreleased
+## 11.1.0
 
 - Add Linux support: `xdg-email` opens the default mail client, or a `mailto:` link when `xdg-email` is not installed. The README lists which mail clients receive attachments (#64).
 - Requires `flutter_email_sender_linux` 1.0.0.
