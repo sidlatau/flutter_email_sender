@@ -1,3 +1,8 @@
+## Unreleased
+
+- Add `EmailSendResult` and `FlutterEmailSenderPlatform.sendWithResult`, which calls `send` and returns `EmailSendResult.unknown` unless overridden.
+- Add `Email.toMailtoUri()` and `EmailCapabilities.mailto()`.
+
 ## 1.0.0
 
 - Initial federated platform interface for `flutter_email_sender`.
