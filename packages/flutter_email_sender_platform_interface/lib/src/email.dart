@@ -1,3 +1,5 @@
+import 'email_attachment.dart';
+
 /// Immutable email request passed to the plugin.
 class Email {
   /// Creates an email request with optional recipients, body, and attachments.
@@ -8,6 +10,7 @@ class Email {
     this.bcc = const [],
     this.body = '',
     this.attachmentPaths,
+    this.attachments = const [],
     this.isHTML = false,
   });
 
@@ -29,11 +32,16 @@ class Email {
   /// Absolute attachment file paths, when supported by the platform.
   final List<String>? attachmentPaths;
 
+  /// Attachments given as files or in-memory data, sent after
+  /// [attachmentPaths].
+  final List<EmailAttachment> attachments;
+
   /// Whether [body] should be treated as HTML instead of plain text.
   final bool isHTML;
 
   /// Whether at least one attachment was provided.
-  bool get hasAttachments => attachmentPaths?.isNotEmpty ?? false;
+  bool get hasAttachments =>
+      (attachmentPaths?.isNotEmpty ?? false) || attachments.isNotEmpty;
 
   /// Whether a non-empty subject was provided.
   bool get hasSubject => subject.isNotEmpty;
@@ -75,6 +83,10 @@ class Email {
       'cc': cc,
       'bcc': bcc,
       'attachment_paths': attachmentPaths,
+      'attachments': <Map<String, Object>>[
+        ...?attachmentPaths?.map((path) => EmailAttachment.file(path).toJson()),
+        ...attachments.map((attachment) => attachment.toJson()),
+      ],
       'is_html': isHTML,
     };
   }

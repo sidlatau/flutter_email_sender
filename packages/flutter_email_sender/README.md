@@ -29,7 +29,6 @@ Web support uses `mailto:` and depends on browser and configured mail client beh
 
 On Android, HTML support depends on the email app; Gmail shows the body as plain text.
 
-Attachments can be any file the app can read. On Android they are copied into the app's cache directory before being shared, so the original file can be deleted once `send` returns.
 
 # Example
 
@@ -78,6 +77,27 @@ try {
   debugPrint('Unsupported: ${error.unsupportedFeatures}');
 }
 ```
+
+## Attachments
+
+Attach files by path, or in-memory data with a file name:
+
+```dart
+final email = Email(
+  recipients: ['example@example.com'],
+  attachmentPaths: ['/path/to/report.pdf'],
+  attachments: [
+    EmailAttachment.file('/path/to/photo.jpg'),
+    EmailAttachment.data(
+      utf8.encode(csv),
+      fileName: 'export.csv',
+      mimeType: 'text/csv',
+    ),
+  ],
+);
+```
+
+Files can be anywhere the app can read; a file that cannot be read makes `send` throw `FlutterEmailSenderPlatformException`. On Android, attachments are copied into the app's cache directory before being shared, so the original file can be deleted once `send` returns. On iOS, the MIME type comes from the file name extension unless `mimeType` is given.
 
 ## Errors
 

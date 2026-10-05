@@ -1,6 +1,7 @@
 import Flutter
 import MessageUI
 import UIKit
+import UniformTypeIdentifiers
 
 public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     private let registrar: FlutterPluginRegistrar
@@ -44,6 +45,20 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     }
 
     private func presentComposer(_ email: Email, result: @escaping FlutterResult) {
+        var attachments: [(data: Data, mimeType: String, fileName: String)] = []
+        for attachment in email.attachments {
+            if let path = attachment["path"] as? String {
+                guard let data = FileManager.default.contents(atPath: path) else {
+                    result(FlutterError(code: "error", message: "\(path): The attachment file cannot be read.", details: nil))
+                    return
+                }
+                let fileName = (path as NSString).lastPathComponent
+                attachments.append((data, mimeType(forFileName: fileName), fileName))
+            } else if let data = attachment["data"] as? FlutterStandardTypedData, let fileName = attachment["file_name"] as? String {
+                attachments.append((data.data, attachment["mime_type"] as? String ?? mimeType(forFileName: fileName), fileName))
+            }
+        }
+
         guard var viewController = registrar.viewController else {
             result(FlutterError(code: "error", message: "Unable to get view controller!", details: nil))
             return
@@ -71,23 +86,23 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             mailComposerVC.setMessageBody(body, isHTML: email.isHTML ?? false)
         }
 
-        if let attachmentPaths = email.attachmentPaths {
-            for path in attachmentPaths {
-                if let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)) {
-                    mailComposerVC.addAttachmentData(
-                        fileData,
-                        mimeType: "application/octet-stream",
-                        fileName: (path as NSString).lastPathComponent
-                    )
-                }
-            }
+        for attachment in attachments {
+            mailComposerVC.addAttachmentData(attachment.data, mimeType: attachment.mimeType, fileName: attachment.fileName)
         }
 
         viewController.present(mailComposerVC, animated: true)
     }
 
+    private func mimeType(forFileName fileName: String) -> String {
+        if #available(iOS 14.0, *),
+           let mimeType = UTType(filenameExtension: (fileName as NSString).pathExtension)?.preferredMIMEType {
+            return mimeType
+        }
+        return "application/octet-stream"
+    }
+
     private func openMailto(_ email: Email, result: @escaping FlutterResult) {
-        if !(email.attachmentPaths ?? []).isEmpty {
+        if !email.attachments.isEmpty {
             result(FlutterError(code: "unsupported", message: "The current platform does not support: attachments.", details: nil))
             return
         }
@@ -119,7 +134,7 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             cc: args[Email.CC] as? [String],
             bcc: args[Email.BCC] as? [String],
             body: args[Email.BODY] as? String,
-            attachmentPaths: args[Email.ATTACHMENT_PATHS] as? [String],
+            attachments: args[Email.ATTACHMENTS] as? [[String: Any]] ?? [],
             subject: args[Email.SUBJECT] as? String,
             isHTML: args[Email.IS_HTML] as? Bool,
             mailtoUri: args[Email.MAILTO_URI] as? String
@@ -175,7 +190,7 @@ struct Email {
     static let RECIPIENTS = "recipients"
     static let CC = "cc"
     static let BCC = "bcc"
-    static let ATTACHMENT_PATHS = "attachment_paths"
+    static let ATTACHMENTS = "attachments"
     static let IS_HTML = "is_html"
     static let MAILTO_URI = "mailto_uri"
 
@@ -183,7 +198,7 @@ struct Email {
     let cc: [String]?
     let bcc: [String]?
     let body: String?
-    let attachmentPaths: [String]?
+    let attachments: [[String: Any]]
     let subject: String?
     let isHTML: Bool?
     let mailtoUri: String?

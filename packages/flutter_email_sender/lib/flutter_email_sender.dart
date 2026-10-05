@@ -7,11 +7,11 @@ import 'src/exceptions.dart';
 
 /// Flutter API for composing emails with the platform's native mail UI.
 ///
-/// This library exports the [Email] request model, [EmailCapabilities] for
-/// feature detection, [EmailSendResult], and typed exceptions for expected
-/// failures.
+/// This library exports the [Email] request model with [EmailAttachment],
+/// [EmailCapabilities] for feature detection, [EmailSendResult], and typed
+/// exceptions for expected failures.
 export 'package:flutter_email_sender_platform_interface/flutter_email_sender_platform_interface.dart'
-    show Email, EmailCapabilities, EmailSendResult;
+    show Email, EmailAttachment, EmailCapabilities, EmailSendResult;
 export 'src/exceptions.dart';
 
 /// Entry point for sending email through the current platform implementation.
