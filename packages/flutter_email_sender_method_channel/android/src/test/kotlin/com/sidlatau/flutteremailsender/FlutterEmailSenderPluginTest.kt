@@ -169,6 +169,34 @@ class FlutterEmailSenderPluginTest {
     }
 
     @Test
+    fun inMemoryAttachmentsAreWrittenUnderTheirFileName() {
+        addThunderbird()
+
+        val intent = sendAndAwaitIntentWith(
+            listOf(
+                mapOf("data" to "a,b".toByteArray(), "file_name" to "report.csv", "mime_type" to "text/csv"),
+                mapOf("path" to writeFile(activity.cacheDir, "notes.txt")),
+            ),
+        )
+
+        val uris = intent.streamListExtra()
+        assertEquals(listOf("report.csv", "notes.txt"), uris.map { it.lastPathSegment })
+        activity.contentResolver.openInputStream(uris[0])!!.use { assertEquals("a,b", it.reader().readText()) }
+    }
+
+    @Test
+    fun inMemoryAttachmentNamesCannotLeaveTheSendFolder() {
+        addThunderbird()
+
+        val intent = sendAndAwaitIntentWith(
+            listOf(mapOf("data" to "x".toByteArray(), "file_name" to "../../evil.txt")),
+        )
+
+        assertEquals("evil.txt", intent.streamExtra().lastPathSegment)
+        assertTrue(File(activity.cacheDir, "flutter_email_sender").walk().any { it.name == "evil.txt" })
+    }
+
+    @Test
     fun previousCopiesAreDeleted() {
         addThunderbird()
         val attachmentsDir = File(activity.cacheDir, "flutter_email_sender")
@@ -202,20 +230,23 @@ class FlutterEmailSenderPluginTest {
         return file.path
     }
 
-    private fun send(attachmentPaths: List<String>): RecordingResult {
+    private fun send(attachments: List<Map<String, Any>>): RecordingResult {
         val result = RecordingResult()
         val arguments = mapOf(
             "subject" to "Subject",
             "body" to "Body",
-            "attachment_paths" to ArrayList(attachmentPaths),
+            "attachments" to attachments,
         )
         plugin.onMethodCall(MethodCall("send", arguments), result)
         lastResult = result
         return result
     }
 
-    private fun sendAndAwaitIntent(attachmentPaths: List<String>): Intent {
-        val result = send(attachmentPaths)
+    private fun sendAndAwaitIntent(attachmentPaths: List<String>): Intent =
+        sendAndAwaitIntentWith(attachmentPaths.map { mapOf("path" to it) })
+
+    private fun sendAndAwaitIntentWith(attachments: List<Map<String, Any>>): Intent {
+        val result = send(attachments)
         repeat(500) {
             shadowOf(Looper.getMainLooper()).idle()
             shadowOf(activity).nextStartedActivityForResult?.let { return it.intent }
@@ -226,7 +257,7 @@ class FlutterEmailSenderPluginTest {
     }
 
     private fun sendAndAwaitError(attachmentPaths: List<String>): String {
-        val result = send(attachmentPaths)
+        val result = send(attachmentPaths.map { mapOf("path" to it) })
         repeat(500) {
             shadowOf(Looper.getMainLooper()).idle()
             result.errorCode?.let { return it }

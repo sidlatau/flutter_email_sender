@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ class EmailSender extends StatefulWidget {
 }
 
 class _EmailSenderState extends State<EmailSender> {
-  List<String> attachments = [];
+  List<EmailAttachment> attachments = [];
   bool isHTML = false;
   EmailCapabilities? capabilities;
 
@@ -60,7 +61,7 @@ class _EmailSenderState extends State<EmailSender> {
       body: _bodyController.text,
       subject: _subjectController.text,
       recipients: [_recipientController.text],
-      attachmentPaths: attachments,
+      attachments: attachments,
       isHTML: isHTML,
     );
 
@@ -174,7 +175,8 @@ class _EmailSenderState extends State<EmailSender> {
                               children: <Widget>[
                                 Expanded(
                                   child: Text(
-                                    attachments[i],
+                                    attachments[i].path ??
+                                        attachments[i].fileName!,
                                     softWrap: false,
                                     overflow: TextOverflow.fade,
                                   ),
@@ -185,12 +187,19 @@ class _EmailSenderState extends State<EmailSender> {
                                 ),
                               ],
                             ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: Icon(Icons.attach_file),
-                              onPressed: _openImagePicker,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              IconButton(
+                                icon: Icon(Icons.text_snippet),
+                                tooltip: 'Attach generated text',
+                                onPressed: _attachGeneratedText,
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.attach_file),
+                                onPressed: _openImagePicker,
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -224,7 +233,7 @@ class _EmailSenderState extends State<EmailSender> {
       }
 
       setState(() {
-        attachments.add(selectedPath!);
+        attachments.add(EmailAttachment.file(selectedPath!));
       });
     } catch (error) {
       if (!mounted) {
@@ -235,6 +244,18 @@ class _EmailSenderState extends State<EmailSender> {
         SnackBar(content: Text('Failed to pick attachment: $error')),
       );
     }
+  }
+
+  void _attachGeneratedText() {
+    setState(() {
+      attachments.add(
+        EmailAttachment.data(
+          utf8.encode('Generated at ${DateTime.now()}'),
+          fileName: 'generated.txt',
+          mimeType: 'text/plain',
+        ),
+      );
+    });
   }
 
   void _removeAttachment(int index) {

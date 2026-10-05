@@ -8,8 +8,11 @@
 - Android: no `AndroidManifest.xml` changes are needed anymore.
 - Android: the plugin no longer brings in `androidx.appcompat`; apps that relied on it through this plugin must add it themselves. `minSdk` is now 24.
 - iOS: the composer opens when another screen is already presented (#117, #71).
+- Add `Email.attachments` with `EmailAttachment.file` and `EmailAttachment.data`, so in-memory data can be attached without writing a file first (#119).
+- iOS: attachments get the MIME type of their file extension instead of `application/octet-stream`.
+- iOS, macOS: an attachment file that cannot be read makes `send` throw instead of being left out.
 - Requires `flutter_email_sender_platform_interface` 1.1.0 and `flutter_email_sender_method_channel` 1.1.0.
-- Example: shows the send result; Android toolchain updated to the Flutter 3.47 templates.
+- Example: shows the send result and can attach generated text; Android toolchain updated to the Flutter 3.47 templates.
 
 ## 10.0.1
 

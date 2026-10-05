@@ -41,13 +41,11 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
             items.append(body)
         }
 
-        if let attachmentPaths = email.attachmentPaths {
-            for path in attachmentPaths {
-                let url = URL(fileURLWithPath: path)
-                if FileManager.default.fileExists(atPath: url.path) {
-                    items.append(url)
-                }
-            }
+        do {
+            items.append(contentsOf: try attachmentURLs(email.attachments))
+        } catch {
+            result(FlutterError(code: "error", message: error.localizedDescription, details: nil))
+            return
         }
 
         if items.isEmpty {
@@ -58,8 +56,34 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
+    private func attachmentURLs(_ attachments: [[String: Any]]) throws -> [URL] {
+        let attachmentsDir = FileManager.default.temporaryDirectory.appendingPathComponent("flutter_email_sender")
+        let sendDir = attachmentsDir.appendingPathComponent(UUID().uuidString)
+        var urls: [URL] = []
+        for (index, attachment) in attachments.enumerated() {
+            if let path = attachment["path"] as? String {
+                guard FileManager.default.isReadableFile(atPath: path) else {
+                    throw CocoaError(.fileReadNoSuchFile, userInfo: [NSFilePathErrorKey: path])
+                }
+                urls.append(URL(fileURLWithPath: path))
+            } else if let data = attachment["data"] as? FlutterStandardTypedData, let fileName = attachment["file_name"] as? String {
+                let directory = sendDir.appendingPathComponent(String(index))
+                try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                let url = directory.appendingPathComponent((fileName as NSString).lastPathComponent)
+                try data.data.write(to: url)
+                urls.append(url)
+            }
+        }
+
+        let previousSends = (try? FileManager.default.contentsOfDirectory(at: attachmentsDir, includingPropertiesForKeys: nil)) ?? []
+        for previousSend in previousSends where previousSend.lastPathComponent != sendDir.lastPathComponent {
+            try? FileManager.default.removeItem(at: previousSend)
+        }
+        return urls
+    }
+
     private func openMailto(_ email: Email, result: @escaping FlutterResult) {
-        if !(email.attachmentPaths ?? []).isEmpty {
+        if !email.attachments.isEmpty {
             result(FlutterError(code: "unsupported", message: "The current platform does not support: attachments.", details: nil))
             return
         }
@@ -79,7 +103,7 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
         return Email(
             recipients: args[Email.recipients] as? [String],
             body: args[Email.body] as? String,
-            attachmentPaths: args[Email.attachmentPaths] as? [String],
+            attachments: args[Email.attachments] as? [[String: Any]] ?? [],
             subject: args[Email.subject] as? String,
             mailtoUri: args[Email.mailtoUri] as? String
         )
@@ -90,12 +114,12 @@ private struct Email {
     static let subject = "subject"
     static let body = "body"
     static let recipients = "recipients"
-    static let attachmentPaths = "attachment_paths"
+    static let attachments = "attachments"
     static let mailtoUri = "mailto_uri"
 
     let recipients: [String]?
     let body: String?
-    let attachmentPaths: [String]?
+    let attachments: [[String: Any]]
     let subject: String?
     let mailtoUri: String?
 }

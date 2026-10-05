@@ -8,6 +8,9 @@
 - iOS: complete `send` when the composer closes with `sent`, `saved` or `cancelled`, or fail with `send_failed` (#72, #77).
 - iOS, macOS: open the `mailto:` link built by the Dart side when the native composer is unavailable, and report the `mailto` composer from `getCapabilities` (#26, #47, #54, #76).
 - iOS, macOS: align the podspec deployment targets with Swift Package Manager (iOS 13.0, macOS 10.15).
+- Support in-memory attachments: Android writes them into the attachment folder, iOS passes them to the composer, and macOS writes them to a temporary folder (#119).
+- iOS: derive attachment MIME types from the file extension.
+- iOS, macOS: fail `send` when an attachment file cannot be read.
 - Requires `flutter_email_sender_platform_interface` 1.1.0.
 
 ## 1.0.1

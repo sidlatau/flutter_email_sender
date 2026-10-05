@@ -29,7 +29,7 @@ private const val BODY = "body"
 private const val RECIPIENTS = "recipients"
 private const val CC = "cc"
 private const val BCC = "bcc"
-private const val ATTACHMENT_PATHS = "attachment_paths"
+private const val ATTACHMENTS = "attachments"
 private const val IS_HTML = "is_html"
 private const val CAN_SEND = "canSend"
 private const val REQUEST_CODE_SEND = 607
@@ -97,16 +97,16 @@ class FlutterEmailSenderPlugin :
             return
         }
 
-        val attachmentPaths = options.argument<ArrayList<String>>(ATTACHMENT_PATHS) ?: ArrayList()
-        if (attachmentPaths.isEmpty()) {
+        val attachments = options.argument<List<Map<String, Any?>>>(ATTACHMENTS) ?: emptyList()
+        if (attachments.isEmpty()) {
             composeEmail(currentActivity, options, emptyList(), callback)
             return
         }
 
         val attachmentsDir = File(currentActivity.cacheDir, ATTACHMENTS_DIR)
         thread {
-            val attachments = try {
-                copyAttachments(attachmentPaths, attachmentsDir)
+            val files = try {
+                writeAttachments(attachments, attachmentsDir)
             } catch (e: IOException) {
                 mainHandler.post { callback.error("error", e.message, null) }
                 return@thread
@@ -119,7 +119,7 @@ class FlutterEmailSenderPlugin :
                     return@post
                 }
 
-                val attachmentUris = attachments.map {
+                val attachmentUris = files.map {
                     FileProvider.getUriForFile(attachedActivity, attachedActivity.packageName + ".file_provider", it)
                 }
                 composeEmail(attachedActivity, options, attachmentUris, callback)
@@ -127,14 +127,24 @@ class FlutterEmailSenderPlugin :
         }
     }
 
-    private fun copyAttachments(paths: List<String>, attachmentsDir: File): List<File> {
+    private fun writeAttachments(attachments: List<Map<String, Any?>>, attachmentsDir: File): List<File> {
         val sendDir = File(attachmentsDir, UUID.randomUUID().toString())
-        val copies = paths.mapIndexed { index, path ->
-            val source = File(path)
-            source.copyTo(File(sendDir, "$index/${source.name}"))
+        val files = attachments.mapIndexed { index, attachment ->
+            val path = attachment["path"] as String?
+            if (path != null) {
+                val source = File(path)
+                source.copyTo(File(sendDir, "$index/${source.name}"))
+            } else {
+                val fileName = File(attachment["file_name"] as String).name
+                    .takeUnless { it.isEmpty() || it == "." || it == ".." } ?: "attachment"
+                File(sendDir, "$index/$fileName").apply {
+                    parentFile!!.mkdirs()
+                    writeBytes(attachment["data"] as ByteArray)
+                }
+            }
         }
         attachmentsDir.listFiles()?.filter { it != sendDir }?.forEach { it.deleteRecursively() }
-        return copies
+        return files
     }
 
     private fun composeEmail(currentActivity: Activity, options: MethodCall, attachmentUris: List<Uri>, callback: Result) {
