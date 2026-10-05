@@ -4,6 +4,7 @@ import UIKit
 
 public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     private let registrar: FlutterPluginRegistrar
+    private var sessions = Set<MailComposeSession>()
 
     init(registrar: FlutterPluginRegistrar) {
         self.registrar = registrar
@@ -41,7 +42,12 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
 
         if MFMailComposeViewController.canSendMail() {
             let mailComposerVC = MFMailComposeViewController()
-            mailComposerVC.mailComposeDelegate = self
+            let session = MailComposeSession(result: result) { [weak self] session in
+                self?.sessions.remove(session)
+            }
+            sessions.insert(session)
+            mailComposerVC.mailComposeDelegate = session
+            mailComposerVC.presentationController?.delegate = session
 
             mailComposerVC.setToRecipients(email.recipients)
             if let subject = email.subject {
@@ -66,9 +72,7 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
                 }
             }
 
-            viewController.present(mailComposerVC, animated: true) {
-                result(nil)
-            }
+            viewController.present(mailComposerVC, animated: true)
         } else {
             result(FlutterError(code: "not_available", message: "No email clients found!", details: nil))
         }
@@ -92,9 +96,45 @@ public class FlutterEmailSenderPlugin: NSObject, FlutterPlugin {
     }
 }
 
-extension FlutterEmailSenderPlugin: MFMailComposeViewControllerDelegate {
-    public func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        controller.dismiss(animated: true, completion: nil)
+private final class MailComposeSession: NSObject, MFMailComposeViewControllerDelegate, UIAdaptivePresentationControllerDelegate {
+    private var result: FlutterResult?
+    private let onFinish: (MailComposeSession) -> Void
+
+    init(result: @escaping FlutterResult, onFinish: @escaping (MailComposeSession) -> Void) {
+        self.result = result
+        self.onFinish = onFinish
+    }
+
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true) {
+            switch result {
+            case .sent:
+                self.finish("sent")
+            case .saved:
+                self.finish("saved")
+            case .cancelled:
+                self.finish("cancelled")
+            case .failed:
+                self.finish(FlutterError(
+                    code: "send_failed",
+                    message: error?.localizedDescription ?? "The email could not be sent.",
+                    details: nil
+                ))
+            @unknown default:
+                self.finish(nil)
+            }
+        }
+    }
+
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        finish("cancelled")
+    }
+
+    private func finish(_ value: Any?) {
+        guard let result = result else { return }
+        self.result = nil
+        result(value)
+        onFinish(self)
     }
 }
 

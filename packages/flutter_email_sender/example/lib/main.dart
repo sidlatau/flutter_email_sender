@@ -67,8 +67,8 @@ class _EmailSenderState extends State<EmailSender> {
     String platformResponse;
 
     try {
-      await FlutterEmailSender.send(email);
-      platformResponse = 'success';
+      final result = await FlutterEmailSender.send(email);
+      platformResponse = 'Composer closed: ${result.name}';
     } catch (error) {
       print(error);
       platformResponse = error.toString();

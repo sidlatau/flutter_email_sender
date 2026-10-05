@@ -8,9 +8,10 @@ import 'src/exceptions.dart';
 /// Flutter API for composing emails with the platform's native mail UI.
 ///
 /// This library exports the [Email] request model, [EmailCapabilities] for
-/// feature detection, and typed exceptions for expected failures.
+/// feature detection, [EmailSendResult], and typed exceptions for expected
+/// failures.
 export 'package:flutter_email_sender_platform_interface/flutter_email_sender_platform_interface.dart'
-    show Email, EmailCapabilities;
+    show Email, EmailCapabilities, EmailSendResult;
 export 'src/exceptions.dart';
 
 /// Entry point for sending email through the current platform implementation.
@@ -20,13 +21,19 @@ class FlutterEmailSender {
 
   /// Opens the platform email composer prefilled with [mail].
   ///
+  /// On Android and iOS the returned future completes when the user leaves the
+  /// composer; on macOS and web, once the composer has been opened. On iOS the
+  /// result tells whether the email was sent, saved or discarded; other
+  /// platforms return [EmailSendResult.unknown].
+  ///
   /// Throws [FlutterEmailSenderNotAvailableException] when no email composer is
   /// available, [FlutterEmailSenderUnsupportedFeatureException] when the
   /// current platform cannot handle some requested fields, or
-  /// [FlutterEmailSenderPlatformException] for other plugin errors.
-  static Future<void> send(Email mail) async {
+  /// [FlutterEmailSenderPlatformException] for other plugin errors, including
+  /// an email that iOS failed to send.
+  static Future<EmailSendResult> send(Email mail) async {
     try {
-      await _platform.send(mail);
+      return await _platform.sendWithResult(mail);
     } on PlatformException catch (error) {
       throw _mapPlatformException(error);
     }

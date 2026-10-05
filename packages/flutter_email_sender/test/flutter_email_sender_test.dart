@@ -7,6 +7,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class _FakeFlutterEmailSenderPlatform extends FlutterEmailSenderPlatform
     with MockPlatformInterfaceMixin {
   Email? sentEmail;
+  EmailSendResult sendResult = EmailSendResult.unknown;
   Object? sendError;
   Object? capabilitiesError;
 
@@ -35,6 +36,12 @@ class _FakeFlutterEmailSenderPlatform extends FlutterEmailSenderPlatform
 
     sentEmail = email;
   }
+
+  @override
+  Future<EmailSendResult> sendWithResult(Email email) async {
+    await send(email);
+    return sendResult;
+  }
 }
 
 void main() {
@@ -60,6 +67,14 @@ void main() {
     await FlutterEmailSender.send(email);
 
     expect(fakePlatform.sentEmail, same(email));
+  });
+
+  test('send returns the platform result', () async {
+    fakePlatform.sendResult = EmailSendResult.saved;
+
+    final result = await FlutterEmailSender.send(const Email());
+
+    expect(result, EmailSendResult.saved);
   });
 
   test('getCapabilities delegates to the platform implementation', () async {

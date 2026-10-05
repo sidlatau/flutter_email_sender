@@ -47,8 +47,21 @@ final Email email = Email(
   isHTML: capabilities.supportsHtmlBody,
 );
 
-await FlutterEmailSender.send(email);
+final result = await FlutterEmailSender.send(email);
+
+switch (result) {
+  case EmailSendResult.sent:
+  case EmailSendResult.saved:
+  case EmailSendResult.cancelled:
+    // iOS reports how the user left the composer.
+    break;
+  case EmailSendResult.unknown:
+    // Android, macOS and web do not report the outcome.
+    break;
+}
 ```
+
+On Android and iOS, `send` completes when the user leaves the composer; on macOS and web, once the composer has been opened.
 
 ```dart
 try {
@@ -65,7 +78,7 @@ try {
 
 - `FlutterEmailSenderNotAvailableException`: no email composer is currently available.
 - `FlutterEmailSenderUnsupportedFeatureException`: requested fields are unsupported on the current platform.
-- `FlutterEmailSenderPlatformException`: unexpected platform/plugin error.
+- `FlutterEmailSenderPlatformException`: unexpected platform/plugin error, or an email that iOS failed to send (code `send_failed`).
 
 ## Migrating From 9.x To 10.0.0
 

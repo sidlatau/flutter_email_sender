@@ -2,6 +2,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'email.dart';
 import 'email_capabilities.dart';
+import 'email_send_result.dart';
 
 /// Abstract platform contract for federated `flutter_email_sender` backends.
 abstract class FlutterEmailSenderPlatform extends PlatformInterface {
@@ -26,6 +27,16 @@ abstract class FlutterEmailSenderPlatform extends PlatformInterface {
 
   /// Sends the provided [email] using the platform implementation.
   Future<void> send(Email email);
+
+  /// Sends the provided [email] and reports how the user left the composer.
+  ///
+  /// The default implementation calls [send] and returns
+  /// [EmailSendResult.unknown]. Override it on platforms that report the
+  /// outcome.
+  Future<EmailSendResult> sendWithResult(Email email) async {
+    await send(email);
+    return EmailSendResult.unknown;
+  }
 
   /// Reports the current platform's email capabilities.
   Future<EmailCapabilities> getCapabilities();

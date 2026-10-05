@@ -9,16 +9,18 @@ void main() {
   const channel = MethodChannel('flutter_email_sender');
   final log = <MethodCall>[];
   final plugin = MethodChannelFlutterEmailSender();
+  String? nativeSendResult;
 
   setUp(() {
     log.clear();
+    nativeSendResult = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
           log.add(call);
           if (call.method == 'getCapabilities') {
             return <String, bool>{'canSend': true};
           }
-          return null;
+          return nativeSendResult;
         });
   });
 
@@ -37,6 +39,33 @@ void main() {
     expect(log.last.method, 'send');
     expect((log.last.arguments as Map<Object?, Object?>)['subject'], 'Hi');
   });
+
+  test('sendWithResult maps the native result', () async {
+    for (final result in ['sent', 'saved', 'cancelled']) {
+      nativeSendResult = result;
+
+      expect(
+        await plugin.sendWithResult(const Email()),
+        EmailSendResult.values.byName(result),
+      );
+    }
+  });
+
+  test(
+    'sendWithResult returns unknown when native code reports nothing',
+    () async {
+      expect(
+        await plugin.sendWithResult(const Email()),
+        EmailSendResult.unknown,
+      );
+
+      nativeSendResult = 'unexpected';
+      expect(
+        await plugin.sendWithResult(const Email()),
+        EmailSendResult.unknown,
+      );
+    },
+  );
 
   test('getCapabilities reads runtime canSend from native code', () async {
     final capabilities = await plugin.getCapabilities();
