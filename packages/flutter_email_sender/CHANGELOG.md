@@ -1,3 +1,16 @@
+## Unreleased
+
+- `send` returns an `EmailSendResult`. On iOS it reports whether the email was sent, saved or discarded, and completes when the composer closes instead of when it opens; other platforms return `EmailSendResult.unknown` (#72, #77).
+- iOS, macOS: when the native composer is unavailable, for example on an iPhone without an Apple Mail account, `send` opens a `mailto:` link in the default mail app, and `getCapabilities` reports attachments and HTML bodies as unsupported (#26, #47, #54, #76).
+- Android: a single attachment now reaches Thunderbird-based email apps (#131).
+- Android: the chooser lists only email apps for any number of attachments (#95), and the email app opens directly when only one is installed.
+- Android: any file the app can read can be attached, including files from `getApplicationDocumentsDirectory()` (#48). Attachments are copied into the app's cache and shared from a single `FileProvider` folder (#100); a missing attachment file makes `send` throw.
+- Android: no `AndroidManifest.xml` changes are needed anymore.
+- Android: the plugin no longer brings in `androidx.appcompat`; apps that relied on it through this plugin must add it themselves. `minSdk` is now 24.
+- iOS: the composer opens when another screen is already presented (#117, #71).
+- Requires `flutter_email_sender_platform_interface` 1.1.0 and `flutter_email_sender_method_channel` 1.1.0.
+- Example: shows the send result; Android toolchain updated to the Flutter 3.47 templates.
+
 ## 10.0.1
 
 - Improve API documentation coverage for pub points.
