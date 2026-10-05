@@ -34,8 +34,7 @@ android {
     }
 
     defaultConfig {
-        minSdk = 16
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        minSdk = 24
     }
 
     lint {
@@ -52,5 +51,5 @@ project.extensions.configure(
 }
 
 dependencies {
-    api("androidx.appcompat:appcompat:1.7.1")
+    implementation("androidx.core:core:1.16.0")
 }
