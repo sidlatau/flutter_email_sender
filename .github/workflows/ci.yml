@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dart:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed packages
+      - run: flutter analyze
+      - name: Test packages
+        run: |
+          for package in packages/*/; do
+            if [ -d "${package}test" ]; then
+              (cd "$package" && flutter test)
+            fi
+          done
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - name: Build example
+        working-directory: packages/flutter_email_sender/example
+        run: flutter build apk --debug
+      - name: Plugin unit tests
+        working-directory: packages/flutter_email_sender/example/android
+        run: ./gradlew :flutter_email_sender_method_channel:testDebugUnitTest
+
+  apple:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - name: Build iOS example
+        working-directory: packages/flutter_email_sender/example
+        run: flutter build ios --simulator --debug
+      - name: Build macOS example
+        working-directory: packages/flutter_email_sender/example
+        run: flutter build macos --debug
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - name: Build web example
+        working-directory: packages/flutter_email_sender/example
+        run: flutter build web
