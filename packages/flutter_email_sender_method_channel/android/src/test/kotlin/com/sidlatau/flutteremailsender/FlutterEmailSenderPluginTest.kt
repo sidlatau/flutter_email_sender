@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -27,6 +28,7 @@ import java.io.File
 @Config(sdk = [35])
 class FlutterEmailSenderPluginTest {
     private lateinit var activity: Activity
+    private lateinit var lastResult: RecordingResult
     private val plugin = FlutterEmailSenderPlugin()
 
     @Before
@@ -119,6 +121,18 @@ class FlutterEmailSenderPluginTest {
     }
 
     @Test
+    fun closingTheComposerCompletesTheCallWithoutAResult() {
+        addThunderbird()
+        sendAndAwaitIntent(listOf(writeFile(activity.cacheDir, "report.pdf")))
+        assertFalse(lastResult.succeeded)
+
+        plugin.onActivityResult(REQUEST_CODE_SEND, Activity.RESULT_CANCELED, null)
+
+        assertTrue(lastResult.succeeded)
+        assertNull(lastResult.value)
+    }
+
+    @Test
     fun noEmailAppReportsNotAvailable() {
         addActivity(ComponentName("com.chat", "Share"), sendFilter(Intent.ACTION_SEND))
 
@@ -196,6 +210,7 @@ class FlutterEmailSenderPluginTest {
             "attachment_paths" to ArrayList(attachmentPaths),
         )
         plugin.onMethodCall(MethodCall("send", arguments), result)
+        lastResult = result
         return result
     }
 
@@ -226,10 +241,15 @@ class FlutterEmailSenderPluginTest {
     private fun Intent.streamListExtra(): List<Uri> = getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)!!
 
     private class RecordingResult : MethodChannel.Result {
+        var succeeded = false
+        var value: Any? = null
         var errorCode: String? = null
         var errorMessage: String? = null
 
-        override fun success(result: Any?) {}
+        override fun success(result: Any?) {
+            succeeded = true
+            value = result
+        }
 
         override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
             this.errorCode = errorCode
@@ -240,6 +260,7 @@ class FlutterEmailSenderPluginTest {
     }
 
     private companion object {
+        const val REQUEST_CODE_SEND = 607
         val THUNDERBIRD = ComponentName("com.thunderbird", "MessageCompose")
     }
 }

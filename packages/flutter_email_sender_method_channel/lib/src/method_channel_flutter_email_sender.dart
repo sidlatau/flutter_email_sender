@@ -33,10 +33,15 @@ class MethodChannelFlutterEmailSender extends FlutterEmailSenderPlatform {
   );
 
   @override
-  Future<void> send(Email email) async {
+  Future<void> send(Email email) => sendWithResult(email);
+
+  @override
+  Future<EmailSendResult> sendWithResult(Email email) async {
     final capabilities = await getCapabilities();
     capabilities.validateEmail(email, platformName: defaultTargetPlatform.name);
-    await _channel.invokeMethod<void>('send', email.toJson());
+    final result = await _channel.invokeMethod<String>('send', email.toJson());
+    return EmailSendResult.values.asNameMap()[result] ??
+        EmailSendResult.unknown;
   }
 
   @override
