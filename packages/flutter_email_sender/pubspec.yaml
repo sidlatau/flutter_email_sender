@@ -14,6 +14,7 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
+  flutter_email_sender_linux: ^1.0.0
   flutter_email_sender_method_channel: ^2.0.0
   flutter_email_sender_platform_interface: ^1.1.0
   flutter_email_sender_web: ^1.0.1
@@ -33,6 +34,8 @@ flutter:
         default_package: flutter_email_sender_method_channel
       ios:
         default_package: flutter_email_sender_method_channel
+      linux:
+        default_package: flutter_email_sender_linux
       macos:
         default_package: flutter_email_sender_method_channel
       web:

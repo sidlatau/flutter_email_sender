@@ -22,8 +22,8 @@ class FlutterEmailSender {
   /// Opens the platform email composer prefilled with [mail].
   ///
   /// On Android and iOS the returned future completes when the user leaves the
-  /// composer; on macOS and web, once the composer has been opened. On iOS the
-  /// result tells whether the email was sent, saved or discarded; other
+  /// composer; on macOS, Linux and web, once the composer has been opened. On
+  /// iOS the result tells whether the email was sent, saved or discarded; other
   /// platforms return [EmailSendResult.unknown].
   ///
   /// Throws [FlutterEmailSenderNotAvailableException] when no email composer is
