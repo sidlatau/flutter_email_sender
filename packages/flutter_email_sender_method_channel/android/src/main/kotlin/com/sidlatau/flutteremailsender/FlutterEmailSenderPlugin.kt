@@ -3,7 +3,9 @@ package com.sidlatau.flutteremailsender
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipDescription
+import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.core.text.HtmlCompat
@@ -109,32 +111,30 @@ class FlutterEmailSenderPlugin :
             FileProvider.getUriForFile(activity!!, activity!!.packageName + ".file_provider", File(it))
         }
 
-        val intent = Intent()
+        val intent: Intent
 
         if (attachmentUris.isEmpty()) {
-            intent.action = Intent.ACTION_SENDTO
-            intent.data = Uri.parse("mailto:")
+            intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
         } else {
+            // Some mail apps (e.g. Thunderbird) ignore EXTRA_STREAM on an untyped intent, and a typed
+            // intent cannot carry a mailto: selector, so email apps are resolved one by one instead.
+            intent = Intent(if (attachmentUris.size == 1) Intent.ACTION_SEND else Intent.ACTION_SEND_MULTIPLE)
+            intent.type = "*/*"
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
             if (attachmentUris.size == 1) {
-                intent.action = Intent.ACTION_SEND
-                intent.data = Uri.parse("mailto:")
                 intent.putExtra(Intent.EXTRA_STREAM, attachmentUris.first())
-                intent.selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
-
-                val clipItems = attachmentUris.map { ClipData.Item(it) }
-                val clipDescription = ClipDescription("", arrayOf("application/octet-stream"))
-                val clipData = ClipData(clipDescription, clipItems.first())
-                for (item in clipItems.drop(1)) {
-                    clipData.addItem(item)
-                }
-                intent.clipData = clipData
             } else {
-                intent.action = Intent.ACTION_SEND_MULTIPLE
-                intent.type = "text/plain"
                 intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(attachmentUris))
             }
+
+            val clipItems = attachmentUris.map { ClipData.Item(it) }
+            val clipDescription = ClipDescription("", arrayOf("application/octet-stream"))
+            val clipData = ClipData(clipDescription, clipItems.first())
+            for (item in clipItems.drop(1)) {
+                clipData.addItem(item)
+            }
+            intent.clipData = clipData
         }
 
         if (text != null) {
@@ -161,12 +161,40 @@ class FlutterEmailSenderPlugin :
             intent.putExtra(Intent.EXTRA_BCC, listArrayToArray(bcc))
         }
 
-        val packageManager = activity?.packageManager
+        val launchIntent = if (attachmentUris.isEmpty()) {
+            intent.takeIf { activity!!.packageManager.resolveActivity(it, 0) != null }
+        } else {
+            emailAppIntent(activity!!.packageManager, intent)
+        }
 
-        if (packageManager?.resolveActivity(intent, 0) != null) {
-            activity?.startActivityForResult(intent, REQUEST_CODE_SEND)
+        if (launchIntent != null) {
+            activity?.startActivityForResult(launchIntent, REQUEST_CODE_SEND)
         } else {
             callback.error("not_available", "No email clients found!", null)
+        }
+    }
+
+    private fun emailAppIntent(packageManager: PackageManager, intent: Intent): Intent? {
+        val emailApps = packageManager.queryIntentActivities(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")), 0)
+        val composers = emailApps.mapNotNull { emailApp ->
+            val handlers = packageManager.queryIntentActivities(
+                Intent(intent.action).setType(intent.type).setPackage(emailApp.activityInfo.packageName),
+                0,
+            )
+            val handler = handlers.firstOrNull { it.activityInfo.name == emailApp.activityInfo.name } ?: handlers.firstOrNull()
+            handler?.let { ComponentName(it.activityInfo.packageName, it.activityInfo.name) }
+        }.distinct()
+
+        return when (composers.size) {
+            0 -> null
+            1 -> intent.setComponent(composers.first())
+            else -> {
+                val otherShareTargets = packageManager.queryIntentActivities(intent, 0)
+                    .map { ComponentName(it.activityInfo.packageName, it.activityInfo.name) }
+                    .filter { it !in composers }
+                Intent.createChooser(intent, null)
+                    .putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, otherShareTargets.toTypedArray())
+            }
         }
     }
 
