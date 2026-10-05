@@ -53,7 +53,8 @@ class FlutterEmailSender {
         return FlutterEmailSenderUnsupportedFeatureException(
           unsupportedFeatures: _extractUnsupportedFeatures(error.message),
           message:
-              error.message ?? 'The current platform does not support this email request.',
+              error.message ??
+              'The current platform does not support this email request.',
         );
       default:
         return FlutterEmailSenderPlatformException.fromPlatformException(error);

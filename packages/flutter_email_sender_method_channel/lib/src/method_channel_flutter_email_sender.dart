@@ -42,8 +42,9 @@ class MethodChannelFlutterEmailSender extends FlutterEmailSenderPlatform {
   @override
   Future<EmailCapabilities> getCapabilities() async {
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS =>
-        _nativeCapabilities(),
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => _nativeCapabilities(),
       _ => const EmailCapabilities.none(),
     };
   }
