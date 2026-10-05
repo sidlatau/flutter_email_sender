@@ -8,35 +8,16 @@ class FlutterEmailSenderWeb extends FlutterEmailSenderPlatform {
     FlutterEmailSenderPlatform.instance = FlutterEmailSenderWeb();
   }
 
-  static const EmailCapabilities _capabilities = EmailCapabilities(
+  static const EmailCapabilities _capabilities = EmailCapabilities.mailto(
     canSend: true,
-    supportsCc: true,
-    supportsBcc: true,
-    supportsSubject: true,
-    supportsPlainTextBody: true,
-    supportsHtmlBody: false,
-    supportsAttachments: false,
   );
 
   @override
   Future<void> send(Email email) async {
     _capabilities.validateEmail(email, platformName: 'web');
 
-    final queryParameters = <String, String>{
-      if (email.hasSubject) 'subject': email.subject,
-      if (email.cc.isNotEmpty) 'cc': email.cc.join(','),
-      if (email.bcc.isNotEmpty) 'bcc': email.bcc.join(','),
-      if (email.hasBody) 'body': email.body,
-    };
-
-    final emailLaunchUri = Uri(
-      scheme: 'mailto',
-      path: email.recipients.join(','),
-      query: _encodeQueryParameters(queryParameters),
-    );
-
     final didLaunch = await launchUrl(
-      emailLaunchUri,
+      email.toMailtoUri(),
       webOnlyWindowName: '_self',
     );
 
@@ -50,17 +31,4 @@ class FlutterEmailSenderWeb extends FlutterEmailSenderPlatform {
 
   @override
   Future<EmailCapabilities> getCapabilities() async => _capabilities;
-}
-
-String? _encodeQueryParameters(Map<String, String> params) {
-  if (params.isEmpty) {
-    return null;
-  }
-
-  return params.entries
-      .map(
-        (entry) =>
-            '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}',
-      )
-      .join('&');
 }
