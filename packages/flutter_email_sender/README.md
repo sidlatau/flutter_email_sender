@@ -8,6 +8,8 @@ On iOS `MFMailComposeViewController` is used to compose an email when an account
 
 On macOS `NSSharingService` with `.composeEmail` is used to compose an email.
 
+On Linux `xdg-email` opens the default mail client, such as Thunderbird. Without `xdg-email`, the plugin opens a `mailto:` link, which cannot carry attachments.
+
 When the native composer is unavailable on iOS or macOS, for example on an iPhone without an Apple Mail account, the plugin opens a `mailto:` link in the default mail app (such as Gmail) instead. Attachments and HTML bodies cannot be sent that way, and `getCapabilities()` reports them as unsupported.
 
 The plugin exposes platform capabilities so apps can adapt their UI before sending.
@@ -23,11 +25,15 @@ The public API throws typed Dart exceptions rather than exposing raw `PlatformEx
 | iOS, `mailto:` fallback | Yes | Yes | No | No |
 | macOS | No | No | No | Yes |
 | macOS, `mailto:` fallback | Yes | Yes | No | No |
+| Linux | Yes | Yes | No | Yes |
+| Linux, `mailto:` fallback | Yes | Yes | No | No |
 | Web | Yes | Yes | No | No |
 
 Web support uses `mailto:` and depends on browser and configured mail client behavior.
 
 On Android, HTML support depends on the email app; Gmail shows the body as plain text.
+
+On Linux, attachments reach Thunderbird installed from the distribution's packages, Evolution and KMail. Thunderbird installed as a Snap (the Ubuntu default) or Flatpak, Claws Mail and webmail receive the email as a `mailto:` link and drop the attachments without an error.
 
 
 # Example
@@ -60,12 +66,12 @@ switch (result) {
     // iOS reports how the user left the composer.
     break;
   case EmailSendResult.unknown:
-    // Android, macOS and web do not report the outcome.
+    // Other platforms do not report the outcome.
     break;
 }
 ```
 
-On Android and iOS, `send` completes when the user leaves the composer; on macOS and web, once the composer has been opened.
+On Android and iOS, `send` completes when the user leaves the composer; on macOS, Linux and web, once the composer has been opened.
 
 ```dart
 try {
@@ -97,7 +103,7 @@ final email = Email(
 );
 ```
 
-Files can be anywhere the app can read; a file that cannot be read makes `send` throw `FlutterEmailSenderPlatformException`. On Android, attachments are copied into the app's cache directory before being shared, so the original file can be deleted once `send` returns. On iOS, the MIME type comes from the file name extension unless `mimeType` is given.
+Files can be anywhere the app can read; a file that cannot be read makes `send` throw `FlutterEmailSenderPlatformException`. On Android, attachments are copied into the app's cache directory before being shared, so the original file can be deleted once `send` returns. On iOS, the MIME type comes from the file name extension unless `mimeType` is given. On Linux, in-memory data is written to the temporary directory and left there, because Thunderbird reads attachments only when the email is sent.
 
 ## Errors
 
@@ -149,6 +155,8 @@ Example app `pubspec_overrides.yaml`:
 
 ```yaml
 dependency_overrides:
+  flutter_email_sender_linux:
+    path: ../flutter_email_sender/packages/flutter_email_sender_linux
   flutter_email_sender_method_channel:
     path: ../flutter_email_sender/packages/flutter_email_sender_method_channel
   flutter_email_sender_platform_interface:
@@ -175,3 +183,7 @@ No setup is needed. Optionally, list `mailto` under `LSApplicationQueriesSchemes
 ```
 
 Without it, iOS does not let the plugin check whether a mail app can open `mailto:` links, so `canSend` is reported as `true` and `send` throws `FlutterEmailSenderNotAvailableException` when none can.
+
+## Linux Setup
+
+No setup is needed. The plugin uses `xdg-email` from `xdg-utils`, which desktop distributions usually include. Without it, `send` opens a `mailto:` link and `getCapabilities()` reports attachments as unsupported.
