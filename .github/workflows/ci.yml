@@ -32,6 +32,39 @@ jobs:
             fi
           done
 
+  minimum-flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - id: minimum
+        run: |
+          version=$(sed -nE 's/^  flutter: ">=([0-9]+\.[0-9]+)\..*/\1.x/p' packages/flutter_email_sender/pubspec.yaml)
+          echo "flutter=$version" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.minimum.outputs.flutter }}
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - name: Test packages
+        run: |
+          for package in packages/*/; do
+            if [ -d "${package}test" ]; then
+              (cd "$package" && flutter test)
+            fi
+          done
+      - name: Build Android example
+        working-directory: packages/flutter_email_sender/example
+        run: flutter build apk --debug
+      - name: Plugin unit tests
+        working-directory: packages/flutter_email_sender/example/android
+        run: ./gradlew :flutter_email_sender_method_channel:testDebugUnitTest
+
   android:
     runs-on: ubuntu-latest
     steps:
