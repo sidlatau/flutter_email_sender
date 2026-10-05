@@ -16,6 +16,6 @@ This package is an endorsed federated implementation and is usually consumed thr
 
 ## Implementation Notes
 
-- Android uses intents to open an email app.
+- Android uses intents to open an email app. Attachments are copied into the app's cache directory and shared through the plugin's `FileProvider`.
 - iOS uses `MFMailComposeViewController`.
 - macOS uses `NSSharingService` with `.composeEmail`.
