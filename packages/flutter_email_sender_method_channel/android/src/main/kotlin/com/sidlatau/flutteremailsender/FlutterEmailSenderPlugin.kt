@@ -7,6 +7,8 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.FileProvider
 import androidx.core.text.HtmlCompat
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -18,6 +20,9 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
 import java.io.File
+import java.io.IOException
+import java.util.UUID
+import kotlin.concurrent.thread
 
 private const val SUBJECT = "subject"
 private const val BODY = "body"
@@ -28,6 +33,7 @@ private const val ATTACHMENT_PATHS = "attachment_paths"
 private const val IS_HTML = "is_html"
 private const val CAN_SEND = "canSend"
 private const val REQUEST_CODE_SEND = 607
+private const val ATTACHMENTS_DIR = "flutter_email_sender"
 
 class FlutterEmailSenderPlugin :
     FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.ActivityResultListener {
@@ -63,6 +69,7 @@ class FlutterEmailSenderPlugin :
     }
 
     private var channelResult: Result? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
@@ -84,14 +91,55 @@ class FlutterEmailSenderPlugin :
     }
 
     private fun sendEmail(options: MethodCall, callback: Result) {
-        if (activity == null) {
+        val currentActivity = activity
+        if (currentActivity == null) {
             callback.error("error", "Activity == null!", null)
             return
         }
 
+        val attachmentPaths = options.argument<ArrayList<String>>(ATTACHMENT_PATHS) ?: ArrayList()
+        if (attachmentPaths.isEmpty()) {
+            composeEmail(currentActivity, options, emptyList(), callback)
+            return
+        }
+
+        val attachmentsDir = File(currentActivity.cacheDir, ATTACHMENTS_DIR)
+        thread {
+            val attachments = try {
+                copyAttachments(attachmentPaths, attachmentsDir)
+            } catch (e: IOException) {
+                mainHandler.post { callback.error("error", e.message, null) }
+                return@thread
+            }
+
+            mainHandler.post {
+                val attachedActivity = activity
+                if (attachedActivity == null) {
+                    callback.error("error", "Activity == null!", null)
+                    return@post
+                }
+
+                val attachmentUris = attachments.map {
+                    FileProvider.getUriForFile(attachedActivity, attachedActivity.packageName + ".file_provider", it)
+                }
+                composeEmail(attachedActivity, options, attachmentUris, callback)
+            }
+        }
+    }
+
+    private fun copyAttachments(paths: List<String>, attachmentsDir: File): List<File> {
+        val sendDir = File(attachmentsDir, UUID.randomUUID().toString())
+        val copies = paths.mapIndexed { index, path ->
+            val source = File(path)
+            source.copyTo(File(sendDir, "$index/${source.name}"))
+        }
+        attachmentsDir.listFiles()?.filter { it != sendDir }?.forEach { it.deleteRecursively() }
+        return copies
+    }
+
+    private fun composeEmail(currentActivity: Activity, options: MethodCall, attachmentUris: List<Uri>, callback: Result) {
         val body = options.argument<String>(BODY)
         val isHtml = options.argument<Boolean>(IS_HTML) ?: false
-        val attachmentPaths = options.argument<ArrayList<String>>(ATTACHMENT_PATHS) ?: ArrayList()
         val subject = options.argument<String>(SUBJECT)
         val recipients = options.argument<ArrayList<String>>(RECIPIENTS)
         val cc = options.argument<ArrayList<String>>(CC)
@@ -106,9 +154,6 @@ class FlutterEmailSenderPlugin :
             } else {
                 text = body
             }
-        }
-        val attachmentUris = attachmentPaths.map {
-            FileProvider.getUriForFile(activity!!, activity!!.packageName + ".file_provider", File(it))
         }
 
         val intent: Intent
@@ -162,13 +207,13 @@ class FlutterEmailSenderPlugin :
         }
 
         val launchIntent = if (attachmentUris.isEmpty()) {
-            intent.takeIf { activity!!.packageManager.resolveActivity(it, 0) != null }
+            intent.takeIf { currentActivity.packageManager.resolveActivity(it, 0) != null }
         } else {
-            emailAppIntent(activity!!.packageManager, intent)
+            emailAppIntent(currentActivity.packageManager, intent)
         }
 
         if (launchIntent != null) {
-            activity?.startActivityForResult(launchIntent, REQUEST_CODE_SEND)
+            currentActivity.startActivityForResult(launchIntent, REQUEST_CODE_SEND)
         } else {
             callback.error("not_available", "No email clients found!", null)
         }
