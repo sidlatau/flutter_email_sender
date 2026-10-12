@@ -1,3 +1,7 @@
+## Unreleased
+
+- Android: attachments no longer go missing when Android clears the app's cache before the mail app uploads the email, which Gmail reported as "Couldn't send attachment" (#84). The plugin keeps its copies for three days.
+
 ## 11.1.0
 
 - Add Linux support: `xdg-email` opens the default mail client, or a `mailto:` link when `xdg-email` is not installed. The README lists which mail clients receive attachments (#64).

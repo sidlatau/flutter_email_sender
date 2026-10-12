@@ -1,3 +1,7 @@
+## Unreleased
+
+- Android: keep attachment copies in `filesDir/flutter_email_sender/` for three days instead of in `cacheDir`, which Android clears when storage runs low. Gmail failed with "Couldn't send attachment" when the copy was cleared before it uploaded the email, for example while offline (#84).
+
 ## 2.0.0
 
 - BREAKING: iOS, macOS: open the `mailto:` link built by the Dart side when the native composer is unavailable, and report the `mailto` composer from `getCapabilities` (#26, #47, #54, #76).

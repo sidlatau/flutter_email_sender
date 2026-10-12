@@ -103,7 +103,7 @@ final email = Email(
 );
 ```
 
-Files can be anywhere the app can read; a file that cannot be read makes `send` throw `FlutterEmailSenderPlatformException`. On Android, attachments are copied into the app's cache directory before being shared, so the original file can be deleted once `send` returns. On iOS, the MIME type comes from the file name extension unless `mimeType` is given. On Linux, in-memory data is written to the temporary directory and left there, because Thunderbird reads attachments only when the email is sent.
+Files can be anywhere the app can read; a file that cannot be read makes `send` throw `FlutterEmailSenderPlatformException`. On Android, attachments are copied into the app's files directory before being shared, so the original file can be deleted once `send` returns. The copies are kept for three days, because the mail app reads them when it uploads the email, which can be much later, for example when the device is offline. On iOS, the MIME type comes from the file name extension unless `mimeType` is given. On Linux, in-memory data is written to the temporary directory and left there, because Thunderbird reads attachments only when the email is sent.
 
 ## Errors
 
