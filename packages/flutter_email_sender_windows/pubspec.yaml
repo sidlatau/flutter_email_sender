@@ -1,0 +1,38 @@
+name: flutter_email_sender_windows
+description: Windows platform implementation of flutter_email_sender.
+version: 1.0.0
+homepage: https://github.com/sidlatau/flutter_email_sender
+repository: https://github.com/sidlatau/flutter_email_sender/tree/main/packages/flutter_email_sender_windows
+issue_tracker: https://github.com/sidlatau/flutter_email_sender/issues
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
+
+resolution: workspace
+
+dependencies:
+  ffi: ^2.2.0
+  flutter:
+    sdk: flutter
+  flutter_email_sender_platform_interface: ^1.1.0
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  plugin_platform_interface: ^2.1.8
+  url_launcher_platform_interface: ^2.3.2
+
+flutter:
+  plugin:
+    implements: flutter_email_sender
+    platforms:
+      windows:
+        dartPluginClass: FlutterEmailSenderWindows
+
+topics:
+  - email
+  - windows
+  - attachments
+  - federation
