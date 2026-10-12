@@ -15,3 +15,5 @@ Packages:
 To use the plugin in an app, depend on `flutter_email_sender`.
 
 Package documentation lives in `packages/flutter_email_sender/README.md`.
+
+`doc/platform-notes.md` explains why each platform implementation works the way it does.
