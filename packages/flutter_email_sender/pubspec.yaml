@@ -18,6 +18,7 @@ dependencies:
   flutter_email_sender_method_channel: ^2.0.0
   flutter_email_sender_platform_interface: ^1.1.0
   flutter_email_sender_web: ^1.0.1
+  flutter_email_sender_windows: ^1.0.0
 
 dev_dependencies:
   plugin_platform_interface: ^2.1.8
@@ -40,6 +41,8 @@ flutter:
         default_package: flutter_email_sender_method_channel
       web:
         default_package: flutter_email_sender_web
+      windows:
+        default_package: flutter_email_sender_windows
 
 topics:
   - email

@@ -113,6 +113,21 @@ jobs:
         working-directory: packages/flutter_email_sender/example
         run: flutter build linux --debug
 
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - name: Test Windows package
+        working-directory: packages/flutter_email_sender_windows
+        run: flutter test
+      - name: Build Windows example
+        working-directory: packages/flutter_email_sender/example
+        run: flutter build windows --debug
+
   web:
     runs-on: ubuntu-latest
     steps:

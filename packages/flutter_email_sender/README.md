@@ -10,6 +10,8 @@ On macOS `NSSharingService` with `.composeEmail` is used to compose an email.
 
 On Linux `xdg-email` opens the default mail client, such as Thunderbird. Without `xdg-email`, the plugin opens a `mailto:` link, which cannot carry attachments.
 
+On Windows the plugin opens the default mail client's composer through Simple MAPI, which classic Outlook and Thunderbird support. Other mail clients, including the new Outlook for Windows, get a `mailto:` link, which cannot carry attachments.
+
 When the native composer is unavailable on iOS or macOS, for example on an iPhone without an Apple Mail account, the plugin opens a `mailto:` link in the default mail app (such as Gmail) instead. Attachments and HTML bodies cannot be sent that way, and `getCapabilities()` reports them as unsupported.
 
 The plugin exposes platform capabilities so apps can adapt their UI before sending.
@@ -27,6 +29,8 @@ The public API throws typed Dart exceptions rather than exposing raw `PlatformEx
 | macOS, `mailto:` fallback | Yes | Yes | No | No |
 | Linux | Yes | Yes | No | Yes |
 | Linux, `mailto:` fallback | Yes | Yes | No | No |
+| Windows | Yes | Yes | No | Yes |
+| Windows, `mailto:` fallback | Yes | Yes | No | No |
 | Web | Yes | Yes | No | No |
 
 Web support uses `mailto:` and depends on browser and configured mail client behavior.
@@ -71,7 +75,7 @@ switch (result) {
 }
 ```
 
-On Android and iOS, `send` completes when the user leaves the composer; on macOS, Linux and web, once the composer has been opened.
+On Android and iOS, `send` completes when the user leaves the composer; on macOS, Linux and web, once the composer has been opened; on Windows, when the mail client returns, which depending on the client is when its composer opens or closes.
 
 ```dart
 try {
@@ -103,7 +107,7 @@ final email = Email(
 );
 ```
 
-Files can be anywhere the app can read; a file that cannot be read makes `send` throw `FlutterEmailSenderPlatformException`. On Android, attachments are copied into the app's files directory before being shared, so the original file can be deleted once `send` returns. The copies are kept for three days, because the mail app reads them when it uploads the email, which can be much later, for example when the device is offline. On iOS, the MIME type comes from the file name extension unless `mimeType` is given. On Linux, in-memory data is written to the temporary directory and left there, because Thunderbird reads attachments only when the email is sent.
+Files can be anywhere the app can read; a file that cannot be read makes `send` throw `FlutterEmailSenderPlatformException`. On Android, attachments are copied into the app's files directory before being shared, so the original file can be deleted once `send` returns. The copies are kept for three days, because the mail app reads them when it uploads the email, which can be much later, for example when the device is offline. On iOS, the MIME type comes from the file name extension unless `mimeType` is given. On Linux and Windows, in-memory data is written to the temporary directory and left there, because Thunderbird reads attachments only when the email is sent.
 
 ## Errors
 
@@ -163,6 +167,8 @@ dependency_overrides:
     path: ../flutter_email_sender/packages/flutter_email_sender_platform_interface
   flutter_email_sender_web:
     path: ../flutter_email_sender/packages/flutter_email_sender_web
+  flutter_email_sender_windows:
+    path: ../flutter_email_sender/packages/flutter_email_sender_windows
 ```
 
 Adjust the relative paths to match where your app and local plugin checkout live on disk.
@@ -187,3 +193,7 @@ Without it, iOS does not let the plugin check whether a mail app can open `mailt
 ## Linux Setup
 
 No setup is needed. The plugin uses `xdg-email` from `xdg-utils`, which desktop distributions usually include. Without it, `send` opens a `mailto:` link and `getCapabilities()` reports attachments as unsupported.
+
+## Windows Setup
+
+No setup is needed. Attachments need a default mail client that handles Simple MAPI, such as classic Outlook or Thunderbird. With other mail clients, including the new Outlook for Windows, `send` opens a `mailto:` link and `getCapabilities()` reports attachments as unsupported.
