@@ -1,8 +1,8 @@
-## Unreleased
+## 11.2.0
 
-- Add Windows support: the default mail client's composer opens through Simple MAPI, which classic Outlook and Thunderbird support, or through a `mailto:` link for other mail clients such as the new Outlook (#88).
-- Requires `flutter_email_sender_windows` 1.0.0.
+- Add Windows support: the default mail client's composer opens through Simple MAPI, which classic Outlook and Thunderbird support, or through a `mailto:` link for other mail clients such as the new Outlook (#88). Not yet tested with a real mail client; please report problems in #88.
 - Android: attachments no longer go missing when Android clears the app's cache before the mail app uploads the email, which Gmail reported as "Couldn't send attachment" (#84). The plugin keeps its copies for three days.
+- Requires `flutter_email_sender_method_channel` 2.0.1 and `flutter_email_sender_windows` 1.0.0.
 
 ## 11.1.0
 

@@ -196,4 +196,4 @@ No setup is needed. The plugin uses `xdg-email` from `xdg-utils`, which desktop 
 
 ## Windows Setup
 
-No setup is needed. Attachments need a default mail client that handles Simple MAPI, such as classic Outlook or Thunderbird. With other mail clients, including the new Outlook for Windows, `send` opens a `mailto:` link and `getCapabilities()` reports attachments as unsupported.
+No setup is needed. Attachments need a default mail client that handles Simple MAPI, such as classic Outlook or Thunderbird. With other mail clients, including the new Outlook for Windows, `send` opens a `mailto:` link and `getCapabilities()` reports attachments as unsupported. Not yet tested with a real mail client; please report problems in #88.
