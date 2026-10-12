@@ -1,4 +1,4 @@
-## Unreleased
+## 2.0.1
 
 - Android: keep attachment copies in `filesDir/flutter_email_sender/` for three days instead of in `cacheDir`, which Android clears when storage runs low. Gmail failed with "Couldn't send attachment" when the copy was cleared before it uploaded the email, for example while offline (#84).
 
