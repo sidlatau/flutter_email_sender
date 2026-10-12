@@ -22,6 +22,7 @@ import io.flutter.plugin.common.PluginRegistry
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 private const val SUBJECT = "subject"
@@ -34,6 +35,10 @@ private const val IS_HTML = "is_html"
 private const val CAN_SEND = "canSend"
 private const val REQUEST_CODE_SEND = 607
 private const val ATTACHMENTS_DIR = "flutter_email_sender"
+
+// Mail apps read attachments when they upload the email, which can be long after the composer
+// closes, for example when the email waits in the outbox while the device is offline.
+private val ATTACHMENTS_RETENTION_MS = TimeUnit.DAYS.toMillis(3)
 
 class FlutterEmailSenderPlugin :
     FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.ActivityResultListener {
@@ -103,7 +108,7 @@ class FlutterEmailSenderPlugin :
             return
         }
 
-        val attachmentsDir = File(currentActivity.cacheDir, ATTACHMENTS_DIR)
+        val attachmentsDir = File(currentActivity.filesDir, ATTACHMENTS_DIR)
         thread {
             val files = try {
                 writeAttachments(attachments, attachmentsDir)
@@ -143,7 +148,8 @@ class FlutterEmailSenderPlugin :
                 }
             }
         }
-        attachmentsDir.listFiles()?.filter { it != sendDir }?.forEach { it.deleteRecursively() }
+        val expiry = System.currentTimeMillis() - ATTACHMENTS_RETENTION_MS
+        attachmentsDir.listFiles()?.filter { it != sendDir && it.lastModified() < expiry }?.forEach { it.deleteRecursively() }
         return files
     }
 

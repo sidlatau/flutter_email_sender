@@ -23,6 +23,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
@@ -193,20 +194,21 @@ class FlutterEmailSenderPluginTest {
         )
 
         assertEquals("evil.txt", intent.streamExtra().lastPathSegment)
-        assertTrue(File(activity.cacheDir, "flutter_email_sender").walk().any { it.name == "evil.txt" })
+        assertTrue(File(activity.filesDir, "flutter_email_sender").walk().any { it.name == "evil.txt" })
     }
 
     @Test
-    fun previousCopiesAreDeleted() {
+    fun copiesAreKeptOutsideTheCacheForThreeDays() {
         addThunderbird()
-        val attachmentsDir = File(activity.cacheDir, "flutter_email_sender")
+        val attachmentsDir = File(activity.filesDir, "flutter_email_sender")
 
-        sendAndAwaitIntent(listOf(writeFile(activity.filesDir, "first.pdf")))
-        sendAndAwaitIntent(listOf(writeFile(activity.filesDir, "second.pdf")))
+        sendAndAwaitIntent(listOf(writeFile(activity.cacheDir, "old.pdf")))
+        attachmentsDir.listFiles()!!.single().let { it.setLastModified(it.lastModified() - TimeUnit.DAYS.toMillis(4)) }
+        sendAndAwaitIntent(listOf(writeFile(activity.cacheDir, "recent.pdf")))
+        sendAndAwaitIntent(listOf(writeFile(activity.cacheDir, "latest.pdf")))
 
-        val sends = attachmentsDir.listFiles()!!
-        assertEquals(1, sends.size)
-        assertEquals("second.pdf", sends.single().walk().single { it.isFile }.name)
+        val copies = attachmentsDir.walk().filter { it.isFile }.map { it.name }.toSet()
+        assertEquals(setOf("recent.pdf", "latest.pdf"), copies)
     }
 
     private fun addThunderbird() {
