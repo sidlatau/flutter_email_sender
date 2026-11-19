@@ -44,9 +44,13 @@ class FlutterEmailSenderPlugin :
     FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.ActivityResultListener {
     companion object {
         private const val methodChannelName = "flutter_email_sender"
-
-        var activity: Activity? = null
     }
+
+    // Per instance: each Flutter engine has its own plugin instance. A shared (static) activity
+    // was cleared by an old engine's onDetachedFromActivity after a new engine had attached,
+    // so the new engine reported that no email client was available.
+    internal var activity: Activity? = null
+    private var activityBinding: ActivityPluginBinding? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val channel = MethodChannel(binding.binaryMessenger, methodChannelName)
@@ -56,20 +60,30 @@ class FlutterEmailSenderPlugin :
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
 
     override fun onAttachedToActivity(activityPluginBinding: ActivityPluginBinding) {
-        activity = activityPluginBinding.activity
-        activityPluginBinding.addActivityResultListener(this)
+        attach(activityPluginBinding)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-        activity = null
+        detach()
     }
 
     override fun onReattachedToActivityForConfigChanges(activityPluginBinding: ActivityPluginBinding) {
-        activity = activityPluginBinding.activity
-        activityPluginBinding.addActivityResultListener(this)
+        attach(activityPluginBinding)
     }
 
     override fun onDetachedFromActivity() {
+        detach()
+    }
+
+    private fun attach(binding: ActivityPluginBinding) {
+        activityBinding = binding
+        activity = binding.activity
+        binding.addActivityResultListener(this)
+    }
+
+    private fun detach() {
+        activityBinding?.removeActivityResultListener(this)
+        activityBinding = null
         activity = null
     }
 
