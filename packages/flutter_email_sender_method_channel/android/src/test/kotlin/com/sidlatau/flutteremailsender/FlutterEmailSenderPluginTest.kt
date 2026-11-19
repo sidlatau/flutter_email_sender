@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Looper
 import androidx.core.content.FileProvider
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import org.junit.After
@@ -23,6 +24,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
+import java.lang.reflect.Proxy
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
@@ -38,12 +40,43 @@ class FlutterEmailSenderPluginTest {
         FileProvider::class.java.getDeclaredField("sCache").apply { isAccessible = true }
             .let { (it.get(null) as MutableMap<*, *>).clear() }
         activity = Robolectric.buildActivity(Activity::class.java).setup().get()
-        FlutterEmailSenderPlugin.activity = activity
+        plugin.activity = activity
     }
 
     @After
     fun tearDown() {
-        FlutterEmailSenderPlugin.activity = null
+        plugin.activity = null
+    }
+
+    @Test
+    fun oldEngineDetachingDoesNotClearNewEnginesActivity() {
+        addActivity(ComponentName("com.mail", "Compose"), mailtoFilter())
+        val oldActivity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val oldEngine = FlutterEmailSenderPlugin()
+        val newEngine = FlutterEmailSenderPlugin()
+
+        // An activity is recreated: the new engine attaches before the old one detaches.
+        oldEngine.onAttachedToActivity(binding(oldActivity))
+        newEngine.onAttachedToActivity(binding(activity))
+        oldEngine.onDetachedFromActivity()
+
+        val result = RecordingResult()
+        newEngine.onMethodCall(MethodCall("getCapabilities", null), result)
+        assertEquals(mapOf("canSend" to true), result.value)
+    }
+
+    @Test
+    fun detachingClearsOnlyThatInstancesActivity() {
+        val other = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val first = FlutterEmailSenderPlugin()
+        val second = FlutterEmailSenderPlugin()
+        first.onAttachedToActivity(binding(other))
+        second.onAttachedToActivity(binding(activity))
+
+        first.onDetachedFromActivity()
+
+        assertNull(first.activity)
+        assertEquals(activity, second.activity)
     }
 
     @Test
@@ -220,6 +253,12 @@ class FlutterEmailSenderPluginTest {
         packageManager.addActivityIfNotPresent(component).exported = true
         filters.forEach { packageManager.addIntentFilterForActivity(component, it) }
     }
+
+    private fun binding(target: Activity): ActivityPluginBinding =
+        Proxy.newProxyInstance(
+            ActivityPluginBinding::class.java.classLoader,
+            arrayOf(ActivityPluginBinding::class.java),
+        ) { _, method, _ -> if (method.name == "getActivity") target else null } as ActivityPluginBinding
 
     private fun mailtoFilter() = IntentFilter(Intent.ACTION_SENDTO).apply { addDataScheme("mailto") }
 
